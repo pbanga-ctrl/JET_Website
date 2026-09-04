@@ -6,6 +6,7 @@ import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
+import { Analytics } from "@/components/analytics/Analytics";
 import "./globals.css";
 
 // next/font downloads + self-hosts these at build time and exposes each as
@@ -34,6 +35,10 @@ export const metadata: Metadata = {
   },
   description:
     "JET Automation designs and builds industrial automation: robotic cells, control systems, electrical panels, safety upgrades, and off-the-shelf equipment like palletizers, box erectors and OEE monitoring.",
+  // Carried over from the WordPress site so Google Search Console ownership
+  // survives the cutover — without this, verification lapses the moment the
+  // domain stops serving the old site and has to be re-established.
+  verification: { google: "5Hx7lzLiWgJxkRt1hzfB9ZxO94dujmKaAgIuHnO2pF8" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -47,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieConsentBanner />
+        <Analytics />
       </body>
     </html>
   );
