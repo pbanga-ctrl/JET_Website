@@ -8,9 +8,13 @@ import { ButtonLink } from "@/components/ui/Button";
 
 const SCROLL_REVEAL_THRESHOLD = 24;
 
-// Defaults to the store's current address on WordPress, so nothing breaks
-// before the migration; override once it lives on its own subdomain.
-const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL || "https://jetautomation.ca/shop/";
+// The old WooCommerce store went away with the WordPress site, and its
+// replacement isn't live yet — so there is deliberately no default here.
+// While this is unset the Shop link is hidden entirely (see NAV_ITEMS)
+// rather than pointing somewhere that 404s. Set NEXT_PUBLIC_SHOP_URL to the
+// new storefront's address to bring the link back; it is a build-time value,
+// so it takes a redeploy.
+const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL;
 
 function subscribeToScroll(callback: () => void) {
   window.addEventListener("scroll", callback, { passive: true });
@@ -43,12 +47,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: "Products", href: "/products" },
-  // The WooCommerce store still runs on WordPress. It has to move to its own
-  // subdomain before the root domain points at this site, or /shop/ (and the
-  // cart, checkout and account pages under it) 404 at cutover. Flip
-  // NEXT_PUBLIC_SHOP_URL to the new address the moment that move is done —
-  // it is a build-time value, so it takes a redeploy.
-  { label: "Shop", href: SHOP_URL, external: true },
+  ...(SHOP_URL ? [{ label: "Shop", href: SHOP_URL, external: true }] : []),
   { label: "Careers", href: "/careers" },
   { label: "Support", href: "/support" },
 ];
