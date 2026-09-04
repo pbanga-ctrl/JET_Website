@@ -1,26 +1,274 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Blueprint Signal — design tokens (see /DESIGN.md at repo root)
+   Verbatim brand hexes. Do not "improve" these.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --color-primary: #0d21a1;
+  --color-primary-deep: #0a1878;
+  --color-primary-bright: #8ca0f0;
+  --color-secondary: #011638;
+  --color-secondary-raised: #0a2547;
+  --color-tertiary: #eec643;
+  --color-tertiary-deep: #dba916;
+  --color-surface: #eef0f2;
+  --color-surface-raised: #f9fafb;
+  --color-on-surface: #141414;
+  --color-on-surface-muted: #4f5a66;
+  --color-on-dark: #d9e1ea;
+  --color-on-dark-muted: #8da0b8;
+  --color-border: #d2d8de;
+  --color-border-dark: #1c3a5e;
+  --color-error: #a3251c;
+  --color-success: #1e6a4e;
+
+  /* Spacing (8px base, 4px half-step) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 32px;
+  --space-xl: 64px;
+  --space-section: 96px;
+  --space-gutter: 24px;
+  --space-margin: 32px;
+  --content-max: 1200px;
+
+  /* Motion timing (shared between GSAP and CSS/View Transitions) */
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 400ms;
+
+  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
+  --font-mono-ui: var(--font-plex-mono), "Courier New", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--color-primary);
+  --color-primary-deep: var(--color-primary-deep);
+  --color-primary-bright: var(--color-primary-bright);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-raised: var(--color-secondary-raised);
+  --color-tertiary: var(--color-tertiary);
+  --color-tertiary-deep: var(--color-tertiary-deep);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-on-surface: var(--color-on-surface);
+  --color-on-surface-muted: var(--color-on-surface-muted);
+  --color-on-dark: var(--color-on-dark);
+  --color-on-dark-muted: var(--color-on-dark-muted);
+  --color-border: var(--color-border);
+  --color-border-dark: var(--color-border-dark);
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+
+  /* NOTE: deliberately NOT named --spacing-xs/sm/md/lg/xl — those keys are
+     part of Tailwind v4's built-in named spacing scale (the one max-w-md,
+     max-w-xl, size-lg etc. resolve against), so reusing them here would
+     silently replace Tailwind's own values with these much smaller ones. */
+  --spacing-section: var(--space-section);
+  --spacing-gutter: var(--space-gutter);
+  --spacing-margin: var(--space-margin);
+
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono-ui);
+
+  /* Zero radius everywhere is a fixed property of this direction, not a scale */
+  --radius-none: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 0px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-radius: 0 !important;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-display);
+}
+
+::selection {
+  background: var(--color-tertiary);
+  color: var(--color-on-surface);
+}
+
+/* Uppercase Plex Mono apparatus: nav, buttons, labels, part numbers */
+.label-caps {
+  font-family: var(--font-mono-ui);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.spec-mono {
+  font-family: var(--font-mono-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.metric {
+  font-family: var(--font-mono-ui);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Registration-mark corner — card decoration drawn from technical drawing vocabulary */
+.reg-mark {
+  position: relative;
+}
+.reg-mark::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-top: 1px solid currentColor;
+  border-left: 1px solid currentColor;
+  pointer-events: none;
+}
+
+/* 8px drafting grid texture — blueprint-mode hero/conversion bands only */
+.drafting-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border-dark) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border-dark) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.15;
+}
+
+/* Hides the scrollbar on horizontally-scrolling elements (e.g. the product
+   carousel) while keeping them scrollable via drag/swipe/wheel and the
+   scroll-into-view arrow buttons. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* One-shot fade-in, re-triggered by React remounting the element on a
+   `key` change (e.g. ProductTabCarousel swapping the featured image/copy
+   when a tab is clicked) — not a continuous or scroll-linked animation. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation-duration: 0.001s;
+  }
+}
+
+/* ==========================================================================
+   View Transitions — directional nav slides + header anchoring
+
+   Driven by React's <ViewTransition> (wrapped by components/ui/PageTransition.tsx,
+   which every page renders itself in). Two moving parts:
+   - The ::view-transition-old/new(.nav-forward / .nav-back) rules below fire
+     only for links tagged transitionTypes={['nav-forward'|'nav-back']}
+     (e.g. Careers -> job detail); everything else gets the plain fade rules
+     further down. See PageTransition.tsx's enterMap/exitMap for how the tag
+     maps to a CSS class name.
+   - `site-header` matches the `viewTransitionName: "site-header"` set inline
+     in components/layout/Header.tsx, so the header snapshot is exempted
+     from the page's fade/slide (`animation: none`) and just stays put.
+   ========================================================================== */
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+
+::view-transition-old(.nav-forward) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-exit) ease-in both bp-fade reverse,
+    var(--duration-move) ease-in-out both bp-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both bp-fade,
+    var(--duration-move) ease-in-out both bp-slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 60px;
+  animation:
+    var(--duration-exit) ease-in both bp-fade reverse,
+    var(--duration-move) ease-in-out both bp-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -60px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both bp-fade,
+    var(--duration-move) ease-in-out both bp-slide;
+}
+
+@keyframes bp-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes bp-slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+::view-transition-old(.fade-out) {
+  animation: var(--duration-exit) ease-in both bp-fade reverse;
+}
+::view-transition-new(.fade-in) {
+  animation: var(--duration-enter) ease-out var(--duration-exit) both bp-fade;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
