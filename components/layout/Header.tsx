@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 
 const SCROLL_REVEAL_THRESHOLD = 24;
@@ -67,6 +67,27 @@ export function Header() {
   );
   const revealed = !isHome || scrolledPastThreshold;
 
+  // Mobile menu. Closing on pathname change matters because tapping a link
+  // navigates without unmounting the header, so the panel would otherwise
+  // stay open over the new page. Adjusted during render rather than in an
+  // effect (React's documented pattern for resetting state when a value
+  // changes) — that also covers browser back/forward, which an onClick
+  // handler on each link would miss.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [lastPath, setLastPath] = useState(pathname);
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setMenuOpen(false);
+  }
+
+  // Don't let the page scroll behind the open panel.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [menuOpen]);
+
   return (
     <header
       className={`z-50 border-b border-border bg-surface transition-transform duration-300 ease-out ${
@@ -74,15 +95,15 @@ export function Header() {
       } ${isHome && !revealed ? "-translate-y-full" : "translate-y-0"}`}
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className="mx-auto flex max-w-[1264px] items-center justify-between px-8 py-3">
-        <Link href="/" className="flex items-center gap-4">
+      <div className="mx-auto flex max-w-[1264px] items-center justify-between gap-3 px-5 py-3 sm:px-5 sm:px-8">
+        <Link href="/" className="flex shrink-0 items-center gap-3 sm:gap-4">
           <Image
             src="/logo/jet-automation-logo.jpg"
             alt="JET Automation"
             width={199}
             height={113}
             priority
-            className="h-10 w-auto mix-blend-multiply"
+            className="h-9 w-auto shrink-0 mix-blend-multiply sm:h-10"
           />
           <span className="label-caps hidden text-[9px] text-on-surface-muted sm:block">
             MISSISSAUGA, ON
@@ -156,15 +177,95 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <ButtonLink href="/login" variant="secondary" className="hidden sm:inline-flex">
-            Customer Login
-          </ButtonLink>
-          <ButtonLink href="/contact-us" variant="primary">
-            Contact Us
-          </ButtonLink>
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {/* Wrapped in a span rather than given `hidden` directly: ButtonLink's
+              own `inline-flex` sits in the same cascade layer and was winning,
+              so the login button showed up on phones regardless. */}
+          <span className="hidden lg:block">
+            <ButtonLink href="/login" variant="secondary">
+              Customer Login
+            </ButtonLink>
+          </span>
+          <span className="hidden sm:block">
+            <ButtonLink href="/contact-us" variant="primary">
+              Contact Us
+            </ButtonLink>
+          </span>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="flex h-11 w-11 shrink-0 items-center justify-center border border-border text-on-surface transition-colors hover:border-primary hover:text-primary md:hidden"
+          >
+            <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+              {menuOpen ? (
+                <path d="M5 5l10 10M15 5L5 15" strokeLinecap="round" />
+              ) : (
+                <path d="M3 6h14M3 10h14M3 14h14" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {menuOpen && (
+        <div
+          id="mobile-menu"
+          className="max-h-[calc(100dvh-64px)] overflow-y-auto border-t border-border bg-surface md:hidden"
+        >
+          <nav className="flex flex-col">
+            {NAV_ITEMS.map((item) =>
+              item.external ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="label-caps border-b border-border px-5 py-4 text-on-surface"
+                >
+                  {item.label} ↗
+                </a>
+              ) : (
+                <div key={item.label} className="border-b border-border">
+                  <Link
+                    href={item.href}
+                    className={`label-caps block px-5 py-4 ${
+                      pathname === item.href ? "text-primary" : "text-on-surface"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {item.children && (
+                    <div className="flex flex-col border-t border-border bg-surface-raised">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.label}
+                          href={child.href}
+                          className="spec-mono px-5 py-3 text-on-surface-muted"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            )}
+          </nav>
+
+          <div className="flex flex-col gap-3 p-5">
+            <ButtonLink href="/contact-us" variant="primary" className="justify-center sm:hidden">
+              Contact Us
+            </ButtonLink>
+            <ButtonLink href="/login" variant="secondary" className="justify-center">
+              Customer Login
+            </ButtonLink>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

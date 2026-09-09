@@ -93,7 +93,7 @@ export function ServiceScroller({ sections }: { sections: Section[] }) {
   );
 
   return (
-    <div ref={containerRef} className="mx-auto max-w-[1200px] px-8">
+    <div ref={containerRef} className="mx-auto max-w-[1200px] px-5 sm:px-8">
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
         <div className="divide-y divide-border lg:col-span-7">
           {sections.map((s) => (
@@ -106,7 +106,7 @@ export function ServiceScroller({ sections }: { sections: Section[] }) {
               <p className="label-caps text-primary">
                 {s.index} / {s.tag}
               </p>
-              <h2 className="mt-3 text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+              <h2 className="mt-3 text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
                 {s.title}
               </h2>
               {s.paragraphs.map((p, j) => (

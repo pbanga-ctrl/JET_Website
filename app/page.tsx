@@ -128,11 +128,22 @@ export default function HomePage() {
           playsInline
         />
 
-        {/* Gradient blur scrim: strongest over the copy column (left) so the
-            headline stays readable, fading to fully clear video by the
-            robot-arm column (right) so the footage doesn't get washed out. */}
+        {/* Gradient blur scrim. Two variants because the copy occupies a
+            different share of the frame per breakpoint: on desktop it sits in
+            a left column, so the scrim fades out by the robot-arm column and
+            leaves the footage clear. On phones the copy spans the full width,
+            so a horizontal fade would leave its right third sitting on top of
+            unmasked video — there the scrim covers everything and only eases
+            off below the content. */}
         <div
-          className="absolute inset-0 backdrop-blur-lg bg-surface/70"
+          className="absolute inset-0 bg-surface/78 backdrop-blur-lg md:hidden"
+          style={{
+            maskImage: "linear-gradient(to bottom, black 0%, black 88%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 88%, transparent 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 hidden bg-surface/70 backdrop-blur-lg md:block"
           style={{
             maskImage:
               "linear-gradient(to right, black 0%, black 45%, transparent 68%)",
@@ -141,10 +152,10 @@ export default function HomePage() {
           }}
         />
       </div>
-      <div className="mx-auto w-full max-w-[1200px] px-8">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
         <div className="max-w-2xl">
           <Eyebrow>INTELLIGENT AI AUTOMATION · controls · robotics</Eyebrow>
-          <h1 className="mt-6 text-[56px] font-bold leading-[1.02] tracking-[-0.03em] sm:text-[72px]">
+          <h1 className="mt-6 text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
             FAST.
             <br />
             EFFICIENT.
@@ -171,7 +182,7 @@ export default function HomePage() {
 
       {/* Stats band */}
       <section className="relative overflow-hidden border-y border-border-dark bg-secondary py-28 text-on-dark">
-        <div className="mx-auto max-w-[1200px] px-8">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
           <Eyebrow dark>By the numbers</Eyebrow>
           <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-14 lg:grid-cols-4">
             <MetricCounter target={16} suffix="+" label="Years in operation" delay={0} />
@@ -183,11 +194,11 @@ export default function HomePage() {
       </section>
 
       {/* About us */}
-      <section className="relative overflow-hidden border-y border-border-dark bg-secondary py-24 text-on-dark">
+      <section className="relative overflow-hidden border-y border-border-dark bg-secondary py-16 sm:py-24 text-on-dark">
         <div className="drafting-grid pointer-events-none absolute inset-0" />
-        <div className="relative mx-auto max-w-[1200px] px-8">
+        <div className="relative mx-auto max-w-[1200px] px-5 sm:px-8">
           <Eyebrow dark>About us</Eyebrow>
-          <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+          <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
             Why plant teams keep calling us back
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -209,14 +220,14 @@ export default function HomePage() {
       {/* What we do — the 3D robot arm moved here from the hero; the tile
           grid is gone in favour of a plain list so the arm has room to
           breathe instead of competing with six bordered boxes. */}
-      <section className="mx-auto max-w-[1200px] px-8 py-24">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 sm:py-24">
         <div className="grid grid-cols-1 items-stretch gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <HeroRobotArm />
           </div>
           <div className="lg:col-span-7">
             <Eyebrow>What we do</Eyebrow>
-            <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+            <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
               Six service lines, one roof
             </h2>
             <ul className="mt-8 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
@@ -241,12 +252,12 @@ export default function HomePage() {
       </section>
 
       {/* Featured products */}
-      <section className="border-y border-border-dark bg-secondary py-24 text-on-dark">
-        <div className="mx-auto max-w-[1200px] px-8">
+      <section className="border-y border-border-dark bg-secondary py-16 sm:py-24 text-on-dark">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <Eyebrow dark>Products</Eyebrow>
-              <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+              <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
                 Automation with Inteligence™
               </h2>
             </div>
@@ -265,14 +276,14 @@ export default function HomePage() {
           else here stays server-rendered). Step tiles are frosted/
           translucent instead of opaque so the photo shows through them
           too, not just in the gaps. */}
-      <section className="relative overflow-hidden border-y border-border-dark py-24 text-on-dark">
+      <section className="relative overflow-hidden border-y border-border-dark py-16 sm:py-24 text-on-dark">
         <div className="absolute inset-0 -z-10">
           <ParallaxImage src="/images/how-we-work-bg.jpg" alt="" />
           <div className="absolute inset-0 bg-secondary/75" />
         </div>
-        <div className="relative mx-auto max-w-[1200px] px-8">
+        <div className="relative mx-auto max-w-[1200px] px-5 sm:px-8">
           <Eyebrow dark>How we work</Eyebrow>
-          <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+          <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
             Concept to commissioning
           </h2>
           <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

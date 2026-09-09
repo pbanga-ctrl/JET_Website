@@ -19,9 +19,9 @@ const POLICIES = [
 export default function SupportPage() {
   return (
     <PageTransition>
-      <section className="mx-auto max-w-[1200px] px-8 pb-16 pt-[88px]">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 pb-16 pt-[68px] sm:pt-[88px]">
         <Eyebrow>Support</Eyebrow>
-        <h1 className="mt-6 max-w-2xl text-[56px] font-bold leading-[1.02] tracking-[-0.03em] sm:text-[72px]">
+        <h1 className="mt-6 max-w-2xl text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
           CUSTOMER CARE
         </h1>
         <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
@@ -30,9 +30,9 @@ export default function SupportPage() {
         </p>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-8 py-16">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16">
         <Eyebrow>Check your order</Eyebrow>
-        <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+        <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
           Look up an order
         </h2>
         <Card className="mt-8">
@@ -40,9 +40,9 @@ export default function SupportPage() {
         </Card>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-8 py-16">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16">
         <Eyebrow>FAQ</Eyebrow>
-        <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+        <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
           Frequent questions
         </h2>
         <div className="mt-8">
@@ -50,7 +50,7 @@ export default function SupportPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-8 py-16">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16">
         <Eyebrow>Policies</Eyebrow>
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {POLICIES.map((p) => (

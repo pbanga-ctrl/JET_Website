@@ -175,7 +175,7 @@ export function SeoDashboardClient({ defaultBaseUrl }: { defaultBaseUrl: string 
   const totalIssues = results?.reduce((sum, r) => sum + r.issues.length, 0) ?? 0;
 
   return (
-    <div className="mx-auto max-w-[1200px] px-8 py-16">
+    <div className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16">
       <h1 className="text-[30px] font-bold">SEO Dashboard</h1>
       <p className="mt-2 text-on-surface-muted">
         On-page audit runs instantly against any reachable URL (no Google account needed).

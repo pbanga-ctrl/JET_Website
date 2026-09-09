@@ -39,10 +39,10 @@ export default async function ServicesPage() {
   return (
     <PageTransition>
     <>
-      <section className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-8 pb-16 pt-[88px] lg:grid-cols-12">
+      <section className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-5 sm:px-8 pb-16 pt-[68px] sm:pt-[88px] lg:grid-cols-12">
         <div className="lg:col-span-7">
           <Eyebrow>Services / overview</Eyebrow>
-          <h1 className="mt-6 text-[56px] font-bold leading-[1.02] tracking-[-0.03em] sm:text-[72px]">
+          <h1 className="mt-6 text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
             SERVICES
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
@@ -53,12 +53,12 @@ export default async function ServicesPage() {
       </section>
 
       <nav className="sticky top-[65px] z-40 mb-10 border-y border-border bg-surface">
-        <div className="mx-auto flex max-w-[1200px] gap-1 overflow-x-auto px-8 py-4">
+        <div className="no-scrollbar mx-auto flex max-w-[1200px] gap-1 overflow-x-auto px-5 py-3 sm:px-8 sm:py-4">
           {sections.map((s) => (
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="label-caps whitespace-nowrap px-3 py-2 text-on-surface-muted transition-colors hover:text-primary"
+              className="label-caps whitespace-nowrap px-2 py-2 text-[9px] tracking-[0.06em] text-on-surface-muted transition-colors hover:text-primary sm:px-3 sm:text-[12px] sm:tracking-[0.1em]"
             >
               {s.index} {s.tag.charAt(0) + s.tag.slice(1).toLowerCase()}
             </a>
@@ -68,9 +68,9 @@ export default async function ServicesPage() {
 
       <ServiceScroller sections={sections} />
 
-      <section className="mx-auto max-w-[1200px] px-8 py-24">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 sm:py-24">
         <Eyebrow>Capability matrix</Eyebrow>
-        <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+        <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
           What’s in-house
         </h2>
         <div className="mt-10 overflow-x-auto">

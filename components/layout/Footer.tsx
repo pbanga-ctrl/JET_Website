@@ -26,7 +26,7 @@ const TRUST_LINKS = [
 export function Footer() {
   return (
     <footer className="border-t border-border-dark bg-secondary text-on-dark">
-      <div className="mx-auto grid max-w-[1264px] grid-cols-2 gap-x-8 gap-y-10 px-8 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
+      <div className="mx-auto grid max-w-[1264px] grid-cols-2 gap-x-8 gap-y-10 px-5 sm:px-8 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-3">
             <span className="label-caps flex h-[30px] w-[30px] items-center justify-center bg-primary-bright text-secondary">
@@ -87,7 +87,7 @@ export function Footer() {
         </FooterColumn>
       </div>
 
-      <div className="border-t border-border-dark px-8 py-6">
+      <div className="border-t border-border-dark px-5 sm:px-8 py-6">
         <div className="mx-auto flex max-w-[1264px] flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <p className="spec-mono max-w-[80ch] text-xs text-on-dark-muted">
             JET Automation is not an authorized distributor or representative

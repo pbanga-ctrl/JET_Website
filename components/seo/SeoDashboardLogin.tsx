@@ -34,7 +34,7 @@ export function SeoDashboardLogin() {
   }
 
   return (
-    <div className="mx-auto flex max-w-[420px] flex-col justify-center px-8 py-32">
+    <div className="mx-auto flex max-w-[420px] flex-col justify-center px-5 sm:px-8 py-32">
       <Card>
         <h1 className="text-[22px] font-bold">SEO Dashboard</h1>
         <p className="mt-2 text-sm text-on-surface-muted">

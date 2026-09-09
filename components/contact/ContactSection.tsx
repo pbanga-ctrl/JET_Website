@@ -48,7 +48,7 @@ function StepIndicator({ sent }: { sent: boolean }) {
         return (
           <div
             key={label}
-            className={`label-caps border-r border-border px-4 py-3 text-center last:border-r-0 ${
+            className={`label-caps border-r border-border px-1.5 py-2.5 text-center text-[9px] tracking-[0.06em] last:border-r-0 sm:px-4 sm:py-3 sm:text-[12px] sm:tracking-[0.1em] ${
               filled ? "bg-tertiary text-on-surface" : "text-on-surface-muted"
             }`}
           >
@@ -171,7 +171,7 @@ export function ContactSection() {
                       key={k}
                       type="button"
                       onClick={() => setKind(k)}
-                      className={`label-caps border px-4 py-2 transition-colors ${
+                      className={`label-caps border px-4 py-3 transition-colors sm:py-2 ${
                         kind === k
                           ? "border-primary bg-primary text-surface"
                           : "border-border text-on-surface-muted hover:border-primary hover:text-primary"

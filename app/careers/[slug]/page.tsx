@@ -34,7 +34,7 @@ export default async function JobDetailPage(
 
   return (
     <PageTransition>
-    <section className="mx-auto max-w-[1200px] px-8 pb-24 pt-[88px]">
+    <section className="mx-auto max-w-[1200px] px-5 sm:px-8 pb-16 sm:pb-24 pt-[68px] sm:pt-[88px]">
       <Link
         href="/careers"
         transitionTypes={["nav-back"]}
@@ -43,7 +43,7 @@ export default async function JobDetailPage(
         ← Careers
       </Link>
 
-      <h1 className="mt-6 text-[44px] font-bold leading-[1.1] tracking-[-0.02em]">
+      <h1 className="mt-6 text-[clamp(1.75rem,6.5vw,2.75rem)] font-bold leading-[1.12] tracking-[-0.015em] sm:leading-[1.1] sm:tracking-[-0.02em]">
         {role.title}
       </h1>
       <div className="mt-4 flex flex-wrap gap-2">

@@ -11,9 +11,9 @@ export const metadata: Metadata = { title: "Contact" };
 export default function ContactPage() {
   return (
     <PageTransition>
-      <section className="mx-auto max-w-[1200px] px-8 pb-24 pt-[88px]">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 pb-16 sm:pb-24 pt-[68px] sm:pt-[88px]">
         <Eyebrow>Contact</Eyebrow>
-        <h1 className="mt-6 max-w-2xl text-[56px] font-bold leading-[1.02] tracking-[-0.03em] sm:text-[72px]">
+        <h1 className="mt-6 max-w-2xl text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
           TALK TO AN
           <br />
           ENGINEER

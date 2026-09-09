@@ -29,10 +29,10 @@ export default async function CareersPage() {
   return (
     <PageTransition>
     <>
-      <section className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-8 pb-16 pt-[88px] lg:grid-cols-12">
+      <section className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-5 sm:px-8 pb-16 pt-[68px] sm:pt-[88px] lg:grid-cols-12">
         <div className="lg:col-span-7">
           <Eyebrow>Work with us</Eyebrow>
-          <h1 className="mt-6 text-[56px] font-bold leading-[1.02] tracking-[-0.03em] sm:text-[72px]">
+          <h1 className="mt-6 text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
             CAREERS
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
@@ -54,9 +54,9 @@ export default async function CareersPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-8 py-24">
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 sm:py-24">
         <Eyebrow>Why join us</Eyebrow>
-        <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+        <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
           Six honest reasons
         </h2>
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -72,8 +72,8 @@ export default async function CareersPage() {
         </div>
       </section>
 
-      <section className="border-y border-border-dark bg-secondary py-24 text-on-dark">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-8 lg:grid-cols-12">
+      <section className="border-y border-border-dark bg-secondary py-16 sm:py-24 text-on-dark">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-5 sm:px-8 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <Eyebrow dark>About us</Eyebrow>
           </div>
@@ -86,9 +86,9 @@ export default async function CareersPage() {
         </div>
       </section>
 
-      <section id="jobs" className="mx-auto max-w-[1200px] scroll-mt-24 px-8 py-24">
+      <section id="jobs" className="mx-auto max-w-[1200px] scroll-mt-24 px-5 sm:px-8 py-16 sm:py-24">
         <Eyebrow>Open positions</Eyebrow>
-        <h2 className="mt-4 max-w-2xl text-[30px] font-bold leading-[1.2] tracking-[-0.01em]">
+        <h2 className="mt-4 max-w-2xl text-[clamp(1.4rem,5vw,1.875rem)] font-bold leading-[1.22] tracking-[-0.01em]">
           Open roles
         </h2>
         <div className="mt-10 divide-y divide-border border border-border">
@@ -107,7 +107,7 @@ export default async function CareersPage() {
                     Mississauga · {role.type} · {role.dept}
                   </p>
                 </div>
-                <span className="label-caps border border-primary px-8 py-4 text-primary transition-colors group-hover:bg-primary group-hover:text-surface">
+                <span className="label-caps border border-primary px-5 sm:px-8 py-4 text-primary transition-colors group-hover:bg-primary group-hover:text-surface">
                   View role
                 </span>
               </Link>
@@ -116,10 +116,10 @@ export default async function CareersPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden border-t border-border-dark bg-secondary py-24 text-on-dark">
+      <section className="relative overflow-hidden border-t border-border-dark bg-secondary py-16 sm:py-24 text-on-dark">
         <div className="drafting-grid pointer-events-none absolute inset-0" />
-        <div className="relative mx-auto max-w-[1200px] px-8">
-          <h2 className="max-w-2xl text-[44px] font-bold leading-[1.1] tracking-[-0.02em]">
+        <div className="relative mx-auto max-w-[1200px] px-5 sm:px-8">
+          <h2 className="max-w-2xl text-[clamp(1.75rem,6.5vw,2.75rem)] font-bold leading-[1.12] tracking-[-0.015em] sm:leading-[1.1] sm:tracking-[-0.02em]">
             Nothing fits? Send it anyway.
           </h2>
           <p className="mt-4 max-w-xl text-lg text-on-dark-muted">

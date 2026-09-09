@@ -88,7 +88,7 @@ export function CookieConsentBanner() {
       role="region"
       aria-label="Cookie consent"
     >
-      <div className="mx-auto max-w-[1264px] px-8 py-6">
+      <div className="mx-auto max-h-[70dvh] max-w-[1264px] overflow-y-auto px-5 py-4 sm:px-8 sm:py-6">
         {view === "banner" && (
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <p className="max-w-2xl text-sm text-on-dark-muted">
@@ -103,7 +103,7 @@ export function CookieConsentBanner() {
               </Link>{" "}
               for details.
             </p>
-            <div className="flex flex-shrink-0 flex-wrap gap-3">
+            <div className="flex w-full flex-shrink-0 flex-wrap items-center gap-2 sm:w-auto sm:gap-3">
               <button
                 type="button"
                 onClick={() => setReopened("customize")}

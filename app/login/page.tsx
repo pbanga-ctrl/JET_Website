@@ -18,10 +18,10 @@ export default function LoginPage() {
   return (
     <PageTransition>
       <section className="bg-secondary text-on-dark">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-16 px-8 py-24 lg:grid-cols-12">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-16 px-5 sm:px-8 py-16 sm:py-24 lg:grid-cols-12">
           <div className="lg:col-span-6">
             <Eyebrow dark>Customer portal</Eyebrow>
-            <h1 className="mt-6 max-w-lg text-[44px] font-bold leading-[1.1] tracking-[-0.02em]">
+            <h1 className="mt-6 max-w-lg text-[clamp(1.75rem,6.5vw,2.75rem)] font-bold leading-[1.12] tracking-[-0.015em] sm:leading-[1.1] sm:tracking-[-0.02em]">
               Orders, quotes and drawings in one place
             </h1>
             <p className="mt-4 max-w-md text-lg text-on-dark-muted">

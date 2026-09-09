@@ -32,7 +32,7 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 };
 
 const base =
-  "label-caps inline-flex items-center justify-center px-[32px] py-[16px] transition-[background-color,color,transform,box-shadow] duration-150 ease-out hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none";
+  "label-caps inline-flex items-center justify-center whitespace-nowrap px-5 py-3 transition-[background-color,color,transform,box-shadow] duration-150 ease-out hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0 active:shadow-none sm:px-[32px] sm:py-[16px]";
 
 export function Button({
   variant = "primary",
