@@ -57,7 +57,7 @@ export const ROLES: Record<string, Role> = {
   mech: {
     slug: "mech",
     title: "Mechanical Designer",
-    type: "Contract",
+    type: "Full-time",
     dept: "Design",
     blurb:
       "Design the machine around the process: tooling, guarding, conveyors and pneumatics that complement our robotics and controls work.",
@@ -71,7 +71,27 @@ export const ROLES: Record<string, Role> = {
       "Mechanical or mechatronics diploma/degree",
       "Proficiency in SolidWorks or Inventor",
       "Experience with automation tooling or conveyors",
-      "Available for a 12-month contract, on-site",
+      "On-site in Mississauga",
+    ],
+  },
+  electrician: {
+    slug: "electrician",
+    title: "Electrician",
+    type: "Full-time",
+    dept: "Skilled trades",
+    blurb:
+      "Install and terminate the power and control wiring behind our machines and panels, in the shop and on customer sites across Ontario.",
+    duties: [
+      "Install, terminate and test power and control wiring to drawing",
+      "Run conduit, cable tray and field devices on customer sites",
+      "Support panel installation, start-up and commissioning",
+      "Troubleshoot electrical faults on live equipment safely",
+    ],
+    reqs: [
+      "309A electrician licence, or apprentice with verifiable hours",
+      "Able to read electrical schematics and panel layouts",
+      "Industrial or plant environment experience",
+      "Valid driver's licence for travel to customer sites",
     ],
   },
   general: {
@@ -93,4 +113,4 @@ export const ROLES: Record<string, Role> = {
   },
 };
 
-export const OPEN_ROLE_SLUGS = ["controls", "panel", "mech"] as const;
+export const OPEN_ROLE_SLUGS = ["controls", "panel", "mech", "electrician"] as const;
