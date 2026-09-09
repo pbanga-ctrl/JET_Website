@@ -57,9 +57,12 @@ export function Header() {
   const isHome = pathname === "/";
 
   // On the home page the hero fills the viewport, so the header overlays it
-  // (fixed, out of flow) rather than pushing it down, and stays hidden until
-  // the user scrolls a bit. Every other page keeps it sticky, in-flow and
-  // visible immediately.
+  // (fixed, out of flow) rather than pushing it down. On desktop it stays
+  // hidden until the user scrolls a bit, keeping the hero uninterrupted.
+  // Phones don't get that treatment: the header is the only way to reach the
+  // menu, and hiding it left mobile visitors on the home page with no
+  // navigation at all until they scrolled. Every other page keeps it sticky,
+  // in-flow and visible immediately.
   const scrolledPastThreshold = useSyncExternalStore(
     subscribeToScroll,
     getScrolledPastThreshold,
@@ -92,7 +95,7 @@ export function Header() {
     <header
       className={`z-50 border-b border-border bg-surface transition-transform duration-300 ease-out ${
         isHome ? "fixed inset-x-0 top-0" : "sticky top-0"
-      } ${isHome && !revealed ? "-translate-y-full" : "translate-y-0"}`}
+      } ${isHome && !revealed ? "translate-y-0 md:-translate-y-full" : "translate-y-0"}`}
       style={{ viewTransitionName: "site-header" }}
     >
       <div className="mx-auto flex max-w-[1264px] items-center justify-between gap-3 px-5 py-3 sm:px-5 sm:px-8">
