@@ -111,7 +111,7 @@ export function Header() {
           <span className="label-caps hidden text-[9px] text-on-surface-muted sm:block">
             MISSISSAUGA, ON
             <br />
-            EST. 2003
+            EST. 2010
           </span>
         </Link>
 

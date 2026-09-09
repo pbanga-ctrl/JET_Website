@@ -1,6 +1,7 @@
 // Site-wide footer, rendered once by app/layout.tsx below every page's
 // content. Link columns are plain data below — add a link by adding an
 // entry to the relevant *_LINKS array, no markup changes required.
+import Image from "next/image";
 import Link from "next/link";
 
 const COMPANY_LINKS = [
@@ -28,17 +29,24 @@ export function Footer() {
     <footer className="border-t border-border-dark bg-secondary text-on-dark">
       <div className="mx-auto grid max-w-[1264px] grid-cols-2 gap-x-8 gap-y-10 px-5 sm:px-8 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
         <div className="col-span-2 md:col-span-1">
-          <div className="flex items-center gap-3">
-            <span className="label-caps flex h-[30px] w-[30px] items-center justify-center bg-primary-bright text-secondary">
-              JA
-            </span>
-            <span className="text-[17px] font-bold tracking-[-0.01em]">
-              JET AUTOMATION
-            </span>
+          {/* The logo file is navy artwork on an opaque white background, so
+              it can't sit directly on the dark footer — it would read as a
+              dark shape on a dark ground, and no blend mode or filter fixes
+              that without transparency in the source. A light plate keeps the
+              brand colour correct and makes the lockup deliberate. Swap this
+              for a transparent or white-knockout asset if one turns up. */}
+          <div className="inline-flex bg-surface px-3 py-2">
+            <Image
+              src="/logo/jet-automation-logo.jpg"
+              alt="JET Automation"
+              width={199}
+              height={113}
+              className="h-9 w-auto"
+            />
           </div>
           <p className="mt-4 max-w-[26ch] text-sm text-on-dark-muted">
             Fast. Efficient. Reliable. Automation and controls engineering
-            since 2003.
+            since 2010.
           </p>
         </div>
 
