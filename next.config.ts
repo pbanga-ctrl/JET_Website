@@ -22,6 +22,18 @@ const nextConfig: NextConfig = {
   // treating it as an external server package makes Next load it via plain
   // Node resolution at runtime instead of bundling/analyzing it.
   serverExternalPackages: ["sanity"],
+  // Photos uploaded through the Studio are served from Sanity's image CDN.
+  // next/image refuses remote hosts that aren't listed here — scoped to this
+  // project's asset path rather than the whole CDN.
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+        pathname: "/images/pmugwcpi/**",
+      },
+    ],
+  },
 };
 
 export default nextConfig;
