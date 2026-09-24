@@ -60,6 +60,37 @@ export function ApplyForm({ role }: { role: { slug: string; title: string } }) {
         <Field label="Email">
           <input type="email" name="email" required className={inputClass} />
         </Field>
+        <Field label="Phone">
+          <input
+            type="tel"
+            name="phone"
+            required
+            placeholder="905 000 0000"
+            className={inputClass}
+          />
+        </Field>
+        {/* Optional: plenty of good trades candidates have neither a
+            LinkedIn nor a portfolio, and requiring one would cost us
+            applications rather than filter them. */}
+        <Field label="LinkedIn or portfolio (optional)">
+          <input
+            type="url"
+            name="linkedin"
+            placeholder="https://linkedin.com/in/…"
+            className={inputClass}
+          />
+        </Field>
+        {/* Free text rather than a date picker: people answer this as
+            "two weeks' notice" far more often than as a calendar date. */}
+        <Field label="Availability to start">
+          <input
+            type="text"
+            name="availability"
+            required
+            placeholder="e.g. Immediately, or 2 weeks' notice"
+            className={inputClass}
+          />
+        </Field>
         <Field label="Résumé (PDF)">
           <input
             type="file"

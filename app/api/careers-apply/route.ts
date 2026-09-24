@@ -21,6 +21,9 @@ export async function POST(req: Request) {
 
   const name = form.get("name");
   const email = form.get("email");
+  const phone = form.get("phone");
+  const linkedin = form.get("linkedin");
+  const availability = form.get("availability");
   const roleSlug = form.get("roleSlug");
   const roleTitle = form.get("roleTitle");
   const notes = form.get("notes");
@@ -30,6 +33,8 @@ export async function POST(req: Request) {
   if (
     typeof name !== "string" || !name.trim() ||
     typeof email !== "string" || !email.trim() ||
+    typeof phone !== "string" || !phone.trim() ||
+    typeof availability !== "string" || !availability.trim() ||
     typeof roleSlug !== "string" || !roleSlug.trim() ||
     !(resume instanceof File) || resume.size === 0
   ) {
@@ -61,6 +66,9 @@ export async function POST(req: Request) {
   outgoing.set("submittedAt", new Date().toISOString());
   outgoing.set("name", name);
   outgoing.set("email", email);
+  outgoing.set("phone", phone);
+  outgoing.set("availability", availability);
+  outgoing.set("linkedin", typeof linkedin === "string" ? linkedin.trim() : "");
   outgoing.set("roleSlug", roleSlug);
   outgoing.set("roleTitle", typeof roleTitle === "string" && roleTitle ? roleTitle : roleSlug);
   outgoing.set("notes", typeof notes === "string" ? notes : "");
