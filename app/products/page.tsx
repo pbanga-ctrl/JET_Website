@@ -99,7 +99,7 @@ export default async function ProductsPage() {
       <ConversionBand
         heading="Not sure which product fits?"
         body="Tell us the process and the constraint. We'll tell you whether it's a Jet product, a custom build, or both."
-        ctaLabel="Talk to an engineer"
+        ctaLabel="Talk to a specialist"
         ctaHref="/contact-us"
       />
     </>

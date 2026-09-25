@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Services" };
 // analysis) which only gave names, no figures — "On request" and "—" there
 // rather than inventing precision we don't have.
 const MATRIX = [
-  { cap: "Controls engineering & PLC code", inhouse: true, lead: "2–4 wks" /* compliance: "CSA" */ },
+  { cap: "Controls design & PLC code", inhouse: true, lead: "2–4 wks" /* compliance: "CSA" */ },
   { cap: "Panel build & wiring", inhouse: true, lead: "3–6 wks" /* compliance: "UL 508A" */ },
   { cap: "Robot integration & simulation", inhouse: true, lead: "6–12 wks" /* compliance: "RIA 15.06" */ },
   { cap: "Safety assessment & upgrade", inhouse: true, lead: "1–3 wks" /* compliance: "CSA Z432" */ },
@@ -46,7 +46,7 @@ export default async function ServicesPage() {
             SERVICES
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
-            Engineering, controls, panel build and robotics integration,
+            Design, controls, panel build and robotics integration,
             delivered by one team, so nothing is lost between disciplines.
           </p>
         </div>
@@ -98,7 +98,7 @@ export default async function ServicesPage() {
       </section>
 
       <ConversionBand
-        heading="Scope it with an engineer"
+        heading="Scope it with a specialist"
         body="Tell us the process, the target and the constraint. We'll come back with an approach and a range."
         ctaLabel="Request a quote"
         ctaHref="/contact-us"

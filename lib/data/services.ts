@@ -38,7 +38,7 @@ export const SECTIONS: Section[] = [
     imageSize: "800 × 600",
     photo: { src: "/images/services/industrial-automation.jpg", alt: "Industrial automation line" },
     paragraphs: [
-      "Manufacturing had to become more efficient, cost effective and safer without giving up quality. Industrial automation is our core competency: we meet a customer's challenge head on and engineer the solution that achieves the outcome.",
+      "Manufacturing had to become more efficient, cost effective and safer without giving up quality. Industrial automation is our core competency: we meet a customer's challenge head on and build the solution that achieves the outcome.",
       "As the factory floor and the office floor merge, the pace of change is faster than anything manufacturers have absorbed before. We plan systems that survive the next upgrade, not just this one.",
     ],
   },
@@ -65,7 +65,7 @@ export const SECTIONS: Section[] = [
     imageSize: "800 × 600",
     photo: { src: "/images/services/mechanical-design.jpg", alt: "Mechanical design and machine assembly" },
     paragraphs: [
-      "Mechanical and mechatronics engineers on staff to take on design challenges that complement any custom machine build or robotics project.",
+      "Mechanical and mechatronics designers on staff to take on design challenges that complement any custom machine build or robotics project.",
       "That extends to pneumatic, vacuum and conveyor systems, including the control design those systems need to run as one machine.",
     ],
   },
@@ -78,7 +78,7 @@ export const SECTIONS: Section[] = [
     imageSize: "800 × 600",
     photo: { src: "/images/services/hmi.jpg", alt: "HMI control cabinet" },
     paragraphs: [
-      "Controls engineers with deep experience in hydraulic, pneumatic, temperature and pressure control. We design and develop the hardware and the software that gives your application the precision it needs.",
+      "Controls specialists with deep experience in hydraulic, pneumatic, temperature and pressure control. We design and develop the hardware and the software that gives your application the precision it needs.",
     ],
     spec: [
       { label: "Hydraulic 4- and 6-post AGV lift, precise positioning", value: "100,000 lb" },

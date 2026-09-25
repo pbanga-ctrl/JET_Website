@@ -37,7 +37,7 @@ export default async function CareersPage() {
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
             We’re looking for problem-solvers who want their work on a plant
-            floor, not in a slide deck. Skilled trades, engineers and
+            floor, not in a slide deck. Skilled trades, designers and
             technologists, with the room to take on as much as you’re
             willing to.
           </p>

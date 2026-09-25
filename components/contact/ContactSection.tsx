@@ -112,9 +112,9 @@ export function ContactSection() {
                 Thanks, reference JA-{reference}
               </h2>
               <p className="mt-3 text-on-surface-muted">
-                An engineer reviews every request. Expect a reply within one
-                business day; urgent breakdowns should call the engineering
-                line directly.
+                A specialist reviews every request. Expect a reply within one
+                business day; urgent breakdowns should call the technical
+                support line directly.
               </p>
             </Card>
           ) : (
@@ -236,7 +236,7 @@ export function ContactSection() {
           <Card>
             <dl className="flex flex-col gap-4">
               <InfoRow label="Office line" value="1-877-904-8724" />
-              <InfoRow label="Engineering line" value="1-877-904-8724 ext. 4" />
+              <InfoRow label="Technical support line" value="1-877-904-8724 ext. 4" />
               <InfoRow label="Hours" value="Mon–Fri 9:00–17:00 ET" />
               <InfoRow
                 label="Address"

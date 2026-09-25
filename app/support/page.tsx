@@ -26,7 +26,7 @@ export default function SupportPage() {
         </h1>
         <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
           Order status, shipping, returns and the questions we get most
-          often. Anything technical goes straight to the engineering line.
+          often. Anything technical goes straight to the technical support line.
         </p>
       </section>
 

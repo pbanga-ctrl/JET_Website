@@ -16,9 +16,9 @@ export type Role = {
 export const ROLES: Record<string, Role> = {
   controls: {
     slug: "controls",
-    title: "Controls Engineer",
+    title: "Controls Specialist",
     type: "Full-time",
-    dept: "Engineering",
+    dept: "Controls",
     blurb:
       "You will own controls design and commissioning on custom machines and robotic cells: from I/O lists and schematics through PLC code, HMI and on-site debug with the customer standing beside you.",
     duties: [
@@ -28,7 +28,7 @@ export const ROLES: Record<string, Role> = {
       "Support the panel shop through build and factory acceptance testing",
     ],
     reqs: [
-      "Degree or diploma in controls, electrical or mechatronics engineering",
+      "Technical diploma or degree in controls, electrical or mechatronics",
       "3+ years machine-controls experience in a manufacturing environment",
       "Comfortable troubleshooting live equipment safely",
       "Valid driver’s licence and passport for occasional travel",
@@ -40,12 +40,12 @@ export const ROLES: Record<string, Role> = {
     type: "Full-time",
     dept: "Skilled trades",
     blurb:
-      "Build the control panels our engineers design, cleanly, to print, and on schedule, in a shop that sits down the hall from the people who drew them.",
+      "Build the control panels our design team draws, cleanly, to print, and on schedule, in a shop that sits down the hall from the people who drew them.",
     duties: [
       "Assemble and wire control panels to schematic",
       "Cut, drill and lay out enclosures and backplates",
       "Perform point-to-point checks and power-up testing",
-      "Feed layout improvements back to engineering",
+      "Feed layout improvements back to the design team",
     ],
     reqs: [
       "Electrical assembly or industrial wiring experience",

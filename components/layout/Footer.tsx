@@ -45,7 +45,7 @@ export function Footer() {
             />
           </div>
           <p className="mt-4 max-w-[26ch] text-sm text-on-dark-muted">
-            Fast. Efficient. Reliable. Automation and controls engineering
+            Fast. Efficient. Reliable. Automation and controls specialists
             since 2010.
           </p>
         </div>

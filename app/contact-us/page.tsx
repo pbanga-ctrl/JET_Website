@@ -14,9 +14,9 @@ export default function ContactPage() {
       <section className="mx-auto max-w-[1200px] px-5 sm:px-8 pb-16 sm:pb-24 pt-[68px] sm:pt-[88px]">
         <Eyebrow>Contact</Eyebrow>
         <h1 className="mt-6 max-w-2xl text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
-          TALK TO AN
+          TALK TO A
           <br />
-          ENGINEER
+          SPECIALIST
         </h1>
         <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
           Quotes, service calls, retrofits or a second opinion on a safety

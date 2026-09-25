@@ -26,7 +26,7 @@ const ABOUT_CARDS = [
   {
     tag: "CUSTOMER SERVICE",
     title: "One team on the floor",
-    body: "People driven and people focused. Our engineers work so closely with your team you’ll forget we’re an independent company.",
+    body: "People driven and people focused. Our specialists work so closely with your team you’ll forget we’re an independent company.",
   },
   {
     tag: "20+ YEARS",
@@ -43,7 +43,7 @@ const SERVICE_CARDS = [
     tag: "INTELIGENT AI AUTOMATION",
     anchor: "s01",
     title: "Core competency",
-    body: "We meet the automation challenge head on and engineer the solution that hits the outcome you need.",
+    body: "We meet the automation challenge head on and build the solution that hits the outcome you need.",
   },
   {
     tag: "ELECTRICAL DESIGN",
@@ -163,9 +163,9 @@ export default function HomePage() {
             RELIABLE.
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
-            Jet Automation engineers, builds and commissions automation for
+            Jet Automation designs, builds and commissions automation for
             manufacturers: robotic cells, control systems, electrical
-            panels and safety upgrades. Engineering and panel shop under
+            panels and safety upgrades. Design studio and panel shop under
             one roof in Mississauga.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
@@ -305,7 +305,7 @@ export default function HomePage() {
 
       <ConversionBand
         heading="Bring us the hard one."
-        body="Send drawings, a cycle-time target, or just the problem. An engineer, not a form robot, replies within one business day."
+        body="Send drawings, a cycle-time target, or just the problem. A real person, not a form robot, replies within one business day."
         ctaLabel="Request a quote"
         ctaHref="/contact-us"
       />
