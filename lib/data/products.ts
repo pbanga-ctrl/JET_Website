@@ -83,6 +83,7 @@ export const PRODUCTS: Product[] = [
     tag: "CONTROLS",
     title: "Control Systems",
     body: "Control system packages built around your process, from I/O and PLC code through the HMI operators actually use.",
+    image: { src: "/images/products/control-systems.jpg", alt: "JET-built control panel with safety relays, distributed I/O and terminal rails" },
   },
 ];
 

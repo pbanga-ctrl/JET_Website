@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { Analytics } from "@/components/analytics/Analytics";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import "./globals.css";
 
 // next/font downloads + self-hosts these at build time and exposes each as
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Footer />
         <CookieConsentBanner />
         <Analytics />
+        <ChatWidget />
       </body>
     </html>
   );
