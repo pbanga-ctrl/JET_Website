@@ -6,7 +6,10 @@
 // Credentials are server-only (no NEXT_PUBLIC_ prefix) so they never reach the
 // browser, and the key is issued Read-only so this code physically cannot
 // change stock, prices or orders.
-const API = process.env.WOO_API_URL;
+// Normalised: a trailing slash here produces "…//wp-json/…", which the host
+// rejects — and the failure is invisible because every call just returns an
+// empty list. Strip it rather than depend on how the value was typed.
+const API = (process.env.WOO_API_URL || "").replace(/\/+$/, "") || undefined;
 const KEY = process.env.WOO_CONSUMER_KEY;
 const SECRET = process.env.WOO_CONSUMER_SECRET;
 
@@ -42,15 +45,26 @@ async function wooFetch<T>(path: string, revalidate = 300): Promise<T | null> {
   if (!shopConfigured) return null;
   const auth = Buffer.from(`${KEY}:${SECRET}`).toString("base64");
   try {
-    const res = await fetch(`${API}/wp-json/wc/v3${path}`, {
-      headers: { Authorization: `Basic ${auth}` },
+    const url = `${API}/wp-json/wc/v3${path}`;
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        // Some managed hosts' WAFs reject requests with no/!generic UA.
+        "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
+        Accept: "application/json",
+      },
       // Cached briefly rather than per-request: prices and stock move slowly
       // enough that five minutes is honest, and it keeps the store from being
       // hit on every page view.
       next: { revalidate, tags: ["shop"] },
     });
     if (!res.ok) {
-      console.error(`[shop] WooCommerce ${path} returned ${res.status}`);
+      // Log enough to diagnose from the platform logs: status plus the start
+      // of the body, since WooCommerce returns its reason in JSON.
+      const body = await res.text().catch(() => "");
+      console.error(
+        `[shop] WooCommerce ${res.status} for ${url} :: ${body.slice(0, 200)}`
+      );
       return null;
     }
     return (await res.json()) as T;
@@ -60,25 +74,93 @@ async function wooFetch<T>(path: string, revalidate = 300): Promise<T | null> {
   }
 }
 
-// `category` must be the WooCommerce category ID, not its slug — passing a
-// slug returns an empty list with a 200, which looks like "no products" rather
-// than a bug. Callers resolve slug -> id via getCategories().
-export async function getProducts(opts: {
+export type SortKey = "title" | "price-asc" | "price-desc" | "newest";
+
+// WooCommerce's own orderby values; "price-asc"/"price-desc" map onto the same
+// orderby with a different direction.
+const SORTS: Record<SortKey, { orderby: string; order: "asc" | "desc" }> = {
+  title: { orderby: "title", order: "asc" },
+  "price-asc": { orderby: "price", order: "asc" },
+  "price-desc": { orderby: "price", order: "desc" },
+  newest: { orderby: "date", order: "desc" },
+};
+
+export type ProductQuery = {
   page?: number;
   perPage?: number;
   categoryId?: number;
   search?: string;
-} = {}): Promise<WooProduct[]> {
+  minPrice?: string;
+  maxPrice?: string;
+  inStockOnly?: boolean;
+  onSaleOnly?: boolean;
+  sort?: SortKey;
+};
+
+// `category` must be the WooCommerce category ID, not its slug — passing a
+// slug returns an empty list with a 200, which looks like "no products" rather
+// than a bug. Callers resolve slug -> id via getCategories().
+//
+// Returns the total count alongside the page so the UI can show "N of M" and
+// build real pagination instead of guessing from a full page.
+export async function getProducts(
+  opts: ProductQuery = {}
+): Promise<{ products: WooProduct[]; total: number; totalPages: number }> {
+  const sort = SORTS[opts.sort ?? "title"];
   const params = new URLSearchParams({
     per_page: String(opts.perPage ?? 24),
     page: String(opts.page ?? 1),
     status: "publish",
-    orderby: "title",
-    order: "asc",
+    orderby: sort.orderby,
+    order: sort.order,
   });
   if (opts.categoryId) params.set("category", String(opts.categoryId));
   if (opts.search) params.set("search", opts.search);
-  return (await wooFetch<WooProduct[]>(`/products?${params}`)) ?? [];
+  if (opts.minPrice) params.set("min_price", opts.minPrice);
+  if (opts.maxPrice) params.set("max_price", opts.maxPrice);
+  if (opts.inStockOnly) params.set("stock_status", "instock");
+  if (opts.onSaleOnly) params.set("on_sale", "true");
+
+  const res = await wooFetchWithHeaders<WooProduct[]>(`/products?${params}`);
+  return {
+    products: res?.data ?? [],
+    total: res?.total ?? 0,
+    totalPages: res?.totalPages ?? 0,
+  };
+}
+
+// WooCommerce reports the result count in X-WP-Total / X-WP-TotalPages, which
+// the plain JSON body doesn't carry — needed for honest pagination.
+async function wooFetchWithHeaders<T>(
+  path: string,
+  revalidate = 300
+): Promise<{ data: T; total: number; totalPages: number } | null> {
+  if (!shopConfigured) return null;
+  const auth = Buffer.from(`${KEY}:${SECRET}`).toString("base64");
+  const url = `${API}/wp-json/wc/v3${path}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
+        Accept: "application/json",
+      },
+      next: { revalidate, tags: ["shop"] },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`[shop] WooCommerce ${res.status} for ${url} :: ${body.slice(0, 200)}`);
+      return null;
+    }
+    return {
+      data: (await res.json()) as T,
+      total: Number(res.headers.get("x-wp-total") ?? 0),
+      totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
+    };
+  } catch (err) {
+    console.error(`[shop] WooCommerce unreachable for ${url}`, err);
+    return null;
+  }
 }
 
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {

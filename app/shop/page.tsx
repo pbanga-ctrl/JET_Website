@@ -1,20 +1,25 @@
 // Storefront listing. Products, categories, prices and stock come live from
-// WooCommerce (lib/shop/woo.ts) — this page renders them in the site's own
+// WooCommerce (lib/shop/woo.ts); this page renders them in the site's own
 // design, and buying hands off to WooCommerce, which already owns cart,
 // checkout, payment and orders.
+//
+// Every filter is a URL parameter rather than client state: the result is
+// server-rendered, shareable, linkable and crawlable, and the page still works
+// with JavaScript off. Only the quick-preview panel needs the client.
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ConversionBand } from "@/components/ui/ConversionBand";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { ProductTile } from "@/components/shop/ProductTile";
 import {
   getProducts,
   getCategories,
   shopConfigured,
+  storeUrl,
   toPlainText,
   formatPrice,
-  type WooProduct,
+  type SortKey,
 } from "@/lib/shop/woo";
 
 export const metadata: Metadata = {
@@ -23,65 +28,33 @@ export const metadata: Metadata = {
     "Automation parts from JET Automation: safety controllers, sensors, pneumatics, grippers, rotary actuators and more, in stock in Mississauga.",
 };
 
-function ProductCard({ product }: { product: WooProduct }) {
-  const img = product.images?.[0];
-  return (
-    <Link
-      href={`/shop/${product.slug}`}
-      className="group flex flex-col border border-border bg-surface-raised transition-shadow hover:shadow-[5px_5px_0_0_var(--color-on-surface)]"
-    >
-      <div className="relative h-[200px] w-full overflow-hidden border-b border-border bg-surface">
-        {img ? (
-          <Image
-            src={img.src}
-            alt={img.alt || product.name}
-            fill
-            sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw"
-            className="object-contain p-4"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="label-caps text-on-surface-muted">No photo</span>
-          </div>
-        )}
-        {product.on_sale && (
-          <span className="label-caps absolute left-0 top-0 bg-tertiary px-2 py-1 text-on-surface">
-            Sale
-          </span>
-        )}
-      </div>
+const PER_PAGE = 24;
 
-      <div className="flex flex-1 flex-col p-4">
-        <p className="label-caps text-on-surface-muted">{product.sku || "—"}</p>
-        <h2 className="mt-2 text-[16px] font-bold leading-[1.3] group-hover:text-primary">
-          {product.name}
-        </h2>
-        <p className="mt-2 flex-1 text-sm text-on-surface-muted">
-          {toPlainText(product.short_description || product.description, 90)}
-        </p>
-        <div className="mt-4 flex items-baseline justify-between gap-2">
-          <span className="spec-mono text-[17px] font-medium">{formatPrice(product.price)}</span>
-          <span
-            className={`label-caps ${
-              product.stock_status === "instock" ? "text-success" : "text-on-surface-muted"
-            }`}
-          >
-            {product.stock_status === "instock" ? "In stock" : "Enquire"}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
+const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: "title", label: "A–Z" },
+  { key: "price-asc", label: "Price ↑" },
+  { key: "price-desc", label: "Price ↓" },
+  { key: "newest", label: "Newest" },
+];
 
-export default async function ShopPage(props: {
-  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
-}) {
-  const { category, q, page } = await props.searchParams;
-  const pageNum = Math.max(1, Number(page) || 1);
+type Search = {
+  category?: string;
+  q?: string;
+  page?: string;
+  sort?: string;
+  min?: string;
+  max?: string;
+  stock?: string;
+  sale?: string;
+};
 
-  // The store being unreachable shouldn't take the page down — say so plainly
-  // and keep the phone number in front of people.
+export default async function ShopPage(props: { searchParams: Promise<Search> }) {
+  const sp = await props.searchParams;
+  const pageNum = Math.max(1, Number(sp.page) || 1);
+  const sort = (SORT_OPTIONS.find((s) => s.key === sp.sort)?.key ?? "title") as SortKey;
+  const inStockOnly = sp.stock === "in";
+  const onSaleOnly = sp.sale === "1";
+
   if (!shopConfigured) {
     return (
       <PageTransition>
@@ -99,132 +72,241 @@ export default async function ShopPage(props: {
     );
   }
 
-  // Categories first: the product query needs the numeric id, and the list is
-  // cached for an hour so this costs almost nothing.
   const categories = await getCategories();
-  const categoryId = category
-    ? categories.find((c) => c.slug === category)?.id
+  const categoryId = sp.category
+    ? categories.find((c) => c.slug === sp.category)?.id
     : undefined;
-  const products = await getProducts({
+
+  const { products, total, totalPages } = await getProducts({
     page: pageNum,
-    perPage: 24,
+    perPage: PER_PAGE,
     categoryId,
-    search: q,
+    search: sp.q,
+    minPrice: sp.min,
+    maxPrice: sp.max,
+    inStockOnly,
+    onSaleOnly,
+    sort,
   });
 
-  const qs = (over: Record<string, string | undefined>) => {
+  // Build a URL preserving current filters, overriding only what changed.
+  const href = (over: Partial<Search>) => {
+    const merged: Search = { ...sp, ...over };
     const p = new URLSearchParams();
-    const merged = { category, q, page: String(pageNum), ...over };
-    for (const [k, v] of Object.entries(merged)) if (v && v !== "1") p.set(k, v);
+    for (const [k, v] of Object.entries(merged)) {
+      if (!v) continue;
+      if (k === "page" && v === "1") continue;
+      if (k === "sort" && v === "title") continue;
+      p.set(k, String(v));
+    }
     const s = p.toString();
     return s ? `/shop?${s}` : "/shop";
   };
 
+  const filtersActive = Boolean(
+    sp.category || sp.q || sp.min || sp.max || inStockOnly || onSaleOnly
+  );
+  const store = storeUrl();
+
   return (
     <PageTransition>
       <>
-        <section className="mx-auto max-w-[1200px] px-5 pb-10 pt-[68px] sm:px-8 sm:pt-[88px]">
+        <section className="mx-auto max-w-[1200px] px-5 pb-8 pt-[68px] sm:px-8 sm:pt-[88px]">
           <Eyebrow>Shop</Eyebrow>
           <h1 className="mt-6 text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
             PARTS COUNTER
           </h1>
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
-            Sensors, safety controllers, pneumatics, grippers and actuators,
-            on the shelf in Mississauga. Can&apos;t see what you need? Call the
-            counter and we will source it.
+            Sensors, safety controllers, pneumatics, grippers and actuators, on
+            the shelf in Mississauga.
           </p>
-
-          <form action="/shop" className="mt-8 flex max-w-xl flex-wrap gap-2">
-            <input
-              type="search"
-              name="q"
-              defaultValue={q ?? ""}
-              placeholder="Search by name or part number…"
-              className="min-w-0 flex-1 border border-border bg-surface-raised px-3 py-2.5 text-base text-on-surface placeholder:text-on-surface-muted focus:border-2 focus:border-primary focus:outline-none"
-            />
-            {category && <input type="hidden" name="category" value={category} />}
-            <button
-              type="submit"
-              className="label-caps shrink-0 border border-primary bg-primary px-5 py-2.5 text-surface"
-            >
-              Search
-            </button>
-          </form>
         </section>
 
-        {categories.length > 0 && (
-          <nav className="border-y border-border bg-surface">
-            <div className="no-scrollbar mx-auto flex max-w-[1200px] gap-1 overflow-x-auto px-5 py-3 sm:px-8 sm:py-4">
-              <Link
-                href={qs({ category: undefined, page: undefined })}
-                className={`label-caps whitespace-nowrap px-2 py-2 text-[9px] tracking-[0.06em] transition-colors sm:px-3 sm:text-[12px] sm:tracking-[0.1em] ${
-                  !category ? "text-primary" : "text-on-surface-muted hover:text-primary"
-                }`}
-              >
-                All
-              </Link>
-              {categories.slice(0, 18).map((c) => (
-                <Link
-                  key={c.id}
-                  href={qs({ category: c.slug, page: undefined })}
-                  className={`label-caps whitespace-nowrap px-2 py-2 text-[9px] tracking-[0.06em] transition-colors sm:px-3 sm:text-[12px] sm:tracking-[0.1em] ${
-                    category === c.slug ? "text-primary" : "text-on-surface-muted hover:text-primary"
-                  }`}
-                >
-                  {c.name} ({c.count})
-                </Link>
-              ))}
-            </div>
-          </nav>
-        )}
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-8 px-5 pb-16 sm:px-8 lg:grid-cols-[240px_1fr]">
+          {/* ---- Filters ---------------------------------------------- */}
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <form action="/shop" className="flex flex-col gap-5">
+              {/* Carry non-form filters through a GET submit. */}
+              {sp.category && <input type="hidden" name="category" value={sp.category} />}
+              {sp.sort && <input type="hidden" name="sort" value={sp.sort} />}
 
-        <section className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
-          {products.length === 0 ? (
-            <div className="border border-border bg-surface-raised p-10 text-center">
-              <p className="text-lg">Nothing matched that.</p>
-              <p className="mt-2 text-on-surface-muted">
-                Try a different term, or call 1-877-904-8724 and we will check the shelf.
-              </p>
-              <Link href="/shop" className="label-caps mt-6 inline-block text-primary underline">
-                Clear filters
-              </Link>
-            </div>
-          ) : (
-            <>
+              <div>
+                <label className="label-caps text-on-surface-muted" htmlFor="q">
+                  Search
+                </label>
+                <input
+                  id="q"
+                  type="search"
+                  name="q"
+                  defaultValue={sp.q ?? ""}
+                  placeholder="Name or part number"
+                  className="mt-2 w-full border border-border bg-surface-raised px-3 py-2.5 text-base text-on-surface placeholder:text-on-surface-muted focus:border-2 focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <span className="label-caps text-on-surface-muted">Price (CAD)</span>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="number"
+                    name="min"
+                    min="0"
+                    defaultValue={sp.min ?? ""}
+                    placeholder="Min"
+                    className="w-full min-w-0 border border-border bg-surface-raised px-2 py-2.5 text-base focus:border-2 focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    name="max"
+                    min="0"
+                    defaultValue={sp.max ?? ""}
+                    placeholder="Max"
+                    className="w-full min-w-0 border border-border bg-surface-raised px-2 py-2.5 text-base focus:border-2 focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" name="stock" value="in" defaultChecked={inStockOnly} />
+                  In stock only
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" name="sale" value="1" defaultChecked={onSaleOnly} />
+                  On sale
+                </label>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="submit"
+                  className="label-caps border border-primary bg-primary px-4 py-2.5 text-surface"
+                >
+                  Apply
+                </button>
+                {filtersActive && (
+                  <Link
+                    href="/shop"
+                    className="label-caps border border-border px-4 py-2.5 text-on-surface-muted transition-colors hover:border-primary hover:text-primary"
+                  >
+                    Clear
+                  </Link>
+                )}
+              </div>
+            </form>
+
+            {categories.length > 0 && (
+              <div className="mt-8 border-t border-border pt-5">
+                <span className="label-caps text-on-surface-muted">Categories</span>
+                <ul className="mt-3 flex max-h-[320px] flex-col gap-1 overflow-y-auto lg:max-h-none">
+                  <li>
+                    <Link
+                      href={href({ category: undefined, page: undefined })}
+                      className={`block py-1 text-sm transition-colors hover:text-primary ${
+                        !sp.category ? "font-bold text-primary" : "text-on-surface-muted"
+                      }`}
+                    >
+                      All products
+                    </Link>
+                  </li>
+                  {categories.map((c) => (
+                    <li key={c.id}>
+                      <Link
+                        href={href({ category: c.slug, page: undefined })}
+                        className={`block py-1 text-sm transition-colors hover:text-primary ${
+                          sp.category === c.slug ? "font-bold text-primary" : "text-on-surface-muted"
+                        }`}
+                      >
+                        {c.name.replace(/&amp;/g, "&")}{" "}
+                        <span className="spec-mono text-xs">({c.count})</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </aside>
+
+          {/* ---- Results ---------------------------------------------- */}
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
               <p className="label-caps text-on-surface-muted">
-                {products.length} item{products.length === 1 ? "" : "s"}
-                {category ? " in this category" : ""}
-                {q ? ` matching "${q}"` : ""}
+                {total > 0
+                  ? `${total} item${total === 1 ? "" : "s"}${sp.q ? ` for “${sp.q}”` : ""}`
+                  : "No matches"}
               </p>
-              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+              <div className="flex flex-wrap items-center gap-1">
+                <span className="label-caps text-on-surface-muted">Sort</span>
+                {SORT_OPTIONS.map((o) => (
+                  <Link
+                    key={o.key}
+                    href={href({ sort: o.key, page: undefined })}
+                    className={`label-caps px-2 py-1.5 transition-colors ${
+                      sort === o.key ? "text-primary" : "text-on-surface-muted hover:text-primary"
+                    }`}
+                  >
+                    {o.label}
+                  </Link>
                 ))}
               </div>
+            </div>
 
-              <div className="mt-12 flex items-center justify-between gap-4">
-                {pageNum > 1 ? (
-                  <Link
-                    href={qs({ page: String(pageNum - 1) })}
-                    className="label-caps border border-border px-5 py-3 transition-colors hover:border-primary hover:text-primary"
-                  >
-                    ← Previous
-                  </Link>
-                ) : (
-                  <span />
-                )}
-                {products.length === 24 && (
-                  <Link
-                    href={qs({ page: String(pageNum + 1) })}
-                    className="label-caps border border-border px-5 py-3 transition-colors hover:border-primary hover:text-primary"
-                  >
-                    Next →
-                  </Link>
-                )}
+            {products.length === 0 ? (
+              <div className="mt-8 border border-border bg-surface-raised p-10 text-center">
+                <p className="text-lg">Nothing matched that.</p>
+                <p className="mt-2 text-on-surface-muted">
+                  Try a wider price range or fewer filters, or call 1-877-904-8724
+                  and we will check the shelf.
+                </p>
+                <Link href="/shop" className="label-caps mt-6 inline-block text-primary underline">
+                  Clear filters
+                </Link>
               </div>
-            </>
-          )}
-        </section>
+            ) : (
+              <>
+                <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {products.map((p) => (
+                    <ProductTile
+                      key={p.id}
+                      product={p}
+                      storeUrl={store}
+                      priceLabel={formatPrice(p.price)}
+                      summary={toPlainText(p.short_description || p.description, 160)}
+                    />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-12 flex items-center justify-between gap-4 border-t border-border pt-6">
+                    {pageNum > 1 ? (
+                      <Link
+                        href={href({ page: String(pageNum - 1) })}
+                        className="label-caps border border-border px-5 py-3 transition-colors hover:border-primary hover:text-primary"
+                      >
+                        ← Previous
+                      </Link>
+                    ) : (
+                      <span />
+                    )}
+                    <span className="label-caps text-on-surface-muted">
+                      Page {pageNum} of {totalPages}
+                    </span>
+                    {pageNum < totalPages ? (
+                      <Link
+                        href={href({ page: String(pageNum + 1) })}
+                        className="label-caps border border-border px-5 py-3 transition-colors hover:border-primary hover:text-primary"
+                      >
+                        Next →
+                      </Link>
+                    ) : (
+                      <span />
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </section>
+        </div>
 
         <ConversionBand
           heading="Need something not on the shelf?"
