@@ -7,7 +7,7 @@
 // behind the forms.
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://jetautomation.ca";
+const SITE_URL = "https://www.jetautomation.ca";
 
 export default function robots(): MetadataRoute.Robots {
   return {

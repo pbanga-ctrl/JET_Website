@@ -29,7 +29,13 @@ const plexMono = IBM_Plex_Mono({
 // just the title via its own `export const metadata`, which fills the
 // "%s" in the template below (e.g. "Careers · JET Automation").
 export const metadata: Metadata = {
-  metadataBase: new URL("https://jetautomation.ca"),
+  // The apex 308-redirects to www, so www is the host that actually serves.
+  // metadataBase has to match it or every canonical, og:url and absolute URL
+  // points at a redirect instead of the real page.
+  metadataBase: new URL("https://www.jetautomation.ca"),
+  // "./" resolves per route, so each page declares itself canonical rather
+  // than every page claiming to be the homepage.
+  alternates: { canonical: "./" },
   title: {
     default: "JET Automation",
     template: "%s · JET Automation",

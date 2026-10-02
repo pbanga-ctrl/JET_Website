@@ -6,7 +6,7 @@
 import type { MetadataRoute } from "next";
 import { getRoles } from "@/lib/cms/roles";
 
-const SITE_URL = "https://jetautomation.ca";
+const SITE_URL = "https://www.jetautomation.ca";
 
 const STATIC_ROUTE_META: Record<string, { changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }> = {
   "/": { changeFrequency: "monthly", priority: 1 },
