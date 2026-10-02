@@ -41,37 +41,94 @@ export type WooProduct = {
 
 export type WooCategory = { id: number; name: string; slug: string; count: number };
 
-async function wooFetch<T>(path: string, revalidate = 300): Promise<T | null> {
+// WooCommerce accepts either an Authorization header or consumer_key /
+// consumer_secret as query parameters over HTTPS. The header is cleaner, but
+// Apache and LiteSpeed commonly strip Authorization before PHP sees it, which
+// surfaces as a 401 that is indistinguishable from bad credentials. So: try
+// the header, and on a 401 retry with query auth before giving up. If both
+// fail the credentials really are wrong, and the log says so.
+type FetchResult<T> = { data: T; total: number; totalPages: number };
+
+async function wooRequest<T>(
+  path: string,
+  revalidate: number
+): Promise<FetchResult<T> | null> {
   if (!shopConfigured) return null;
-  const auth = Buffer.from(`${KEY}:${SECRET}`).toString("base64");
-  try {
-    const url = `${API}/wp-json/wc/v3${path}`;
-    const res = await fetch(url, {
+
+  const sep = path.includes("?") ? "&" : "?";
+  const headers: Record<string, string> = {
+    // Some managed hosts' firewalls reject requests with no/generic UA.
+    "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
+    Accept: "application/json",
+  };
+
+  const attempts: { url: string; headers: Record<string, string>; via: string }[] = [
+    {
+      url: `${API}/wp-json/wc/v3${path}`,
       headers: {
-        Authorization: `Basic ${auth}`,
-        // Some managed hosts' WAFs reject requests with no/!generic UA.
-        "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
-        Accept: "application/json",
+        ...headers,
+        Authorization: `Basic ${Buffer.from(`${KEY}:${SECRET}`).toString("base64")}`,
       },
-      // Cached briefly rather than per-request: prices and stock move slowly
-      // enough that five minutes is honest, and it keeps the store from being
-      // hit on every page view.
-      next: { revalidate, tags: ["shop"] },
-    });
-    if (!res.ok) {
-      // Log enough to diagnose from the platform logs: status plus the start
-      // of the body, since WooCommerce returns its reason in JSON.
-      const body = await res.text().catch(() => "");
-      console.error(
-        `[shop] WooCommerce ${res.status} for ${url} :: ${body.slice(0, 200)}`
-      );
+      via: "header auth",
+    },
+    {
+      url:
+        `${API}/wp-json/wc/v3${path}${sep}` +
+        `consumer_key=${encodeURIComponent(KEY!)}&consumer_secret=${encodeURIComponent(SECRET!)}`,
+      headers,
+      via: "query auth",
+    },
+  ];
+
+  for (const attempt of attempts) {
+    try {
+      const res = await fetch(attempt.url, {
+        headers: attempt.headers,
+        // Cached briefly: prices and stock move slowly enough that a few
+        // minutes is honest, and it keeps the store off the critical path.
+        next: { revalidate, tags: ["shop"] },
+      });
+
+      if (res.ok) {
+        return {
+          data: (await res.json()) as T,
+          total: Number(res.headers.get("x-wp-total") ?? 0),
+          totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
+        };
+      }
+
+      // Only a 401 is worth retrying the other way; anything else is a real
+      // error and retrying just doubles the load.
+      if (res.status !== 401) {
+        const body = await res.text().catch(() => "");
+        console.error(
+          `[shop] WooCommerce ${res.status} via ${attempt.via} for ${path} :: ${body.slice(0, 200)}`
+        );
+        return null;
+      }
+      console.warn(`[shop] 401 via ${attempt.via} for ${path}`);
+    } catch (err) {
+      console.error(`[shop] WooCommerce unreachable via ${attempt.via} for ${path}`, err);
       return null;
     }
-    return (await res.json()) as T;
-  } catch (err) {
-    console.error(`[shop] WooCommerce unreachable for ${path}`, err);
-    return null;
   }
+
+  console.error(
+    `[shop] WooCommerce rejected both header and query auth for ${path} — check WOO_CONSUMER_KEY / WOO_CONSUMER_SECRET`
+  );
+  return null;
+}
+
+async function wooFetch<T>(path: string, revalidate = 300): Promise<T | null> {
+  const res = await wooRequest<T>(path, revalidate);
+  return res ? res.data : null;
+}
+
+async function wooFetchWithHeaders<T>(
+  path: string,
+  revalidate = 300
+): Promise<FetchResult<T> | null> {
+  return wooRequest<T>(path, revalidate);
 }
 
 export type SortKey = "title" | "price-asc" | "price-desc" | "newest";
@@ -127,40 +184,6 @@ export async function getProducts(
     total: res?.total ?? 0,
     totalPages: res?.totalPages ?? 0,
   };
-}
-
-// WooCommerce reports the result count in X-WP-Total / X-WP-TotalPages, which
-// the plain JSON body doesn't carry — needed for honest pagination.
-async function wooFetchWithHeaders<T>(
-  path: string,
-  revalidate = 300
-): Promise<{ data: T; total: number; totalPages: number } | null> {
-  if (!shopConfigured) return null;
-  const auth = Buffer.from(`${KEY}:${SECRET}`).toString("base64");
-  const url = `${API}/wp-json/wc/v3${path}`;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Basic ${auth}`,
-        "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
-        Accept: "application/json",
-      },
-      next: { revalidate, tags: ["shop"] },
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      console.error(`[shop] WooCommerce ${res.status} for ${url} :: ${body.slice(0, 200)}`);
-      return null;
-    }
-    return {
-      data: (await res.json()) as T,
-      total: Number(res.headers.get("x-wp-total") ?? 0),
-      totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
-    };
-  } catch (err) {
-    console.error(`[shop] WooCommerce unreachable for ${url}`, err);
-    return null;
-  }
 }
 
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {

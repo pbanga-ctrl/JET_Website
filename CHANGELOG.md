@@ -7,6 +7,20 @@ deploys automatically via Vercel, so everything listed here is live.
 
 ## 2026-10-02
 
+### Storefront auth: fall back to query-string credentials
+WooCommerce calls from Vercel were returning 401 while the same request with
+the same key succeeded from a laptop. Two causes look identical from the
+outside: wrong credentials, or a host stripping the `Authorization` header
+before PHP sees it (common on Apache/LiteSpeed).
+
+The client now tries header auth, and on a 401 retries with
+`consumer_key`/`consumer_secret` as query parameters over HTTPS — WooCommerce
+supports both. If both are rejected the log says so explicitly, which
+distinguishes "header stripped" from "credentials wrong" instead of leaving
+an empty catalogue and no explanation.
+
+## 2026-10-02
+
 ### Storefront rebuilt as a proper shop
 `/shop` is now a full catalogue browser rather than a plain grid:
 
