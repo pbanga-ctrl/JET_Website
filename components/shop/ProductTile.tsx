@@ -18,7 +18,7 @@ type Props = {
 export function ProductTile({ product, storeUrl, priceLabel, summary }: Props) {
   const [preview, setPreview] = useState(false);
   const img = product.images?.[0];
-  const inStock = product.stock_status === "instock";
+  const inStock = product.inStock;
 
   return (
     <>
@@ -38,7 +38,7 @@ export function ProductTile({ product, storeUrl, priceLabel, summary }: Props) {
                 <span className="label-caps text-on-surface-muted">No photo</span>
               </div>
             )}
-            {product.on_sale && (
+            {product.onSale && (
               <span className="label-caps absolute left-0 top-0 bg-tertiary px-2 py-1 text-on-surface">
                 Sale
               </span>
@@ -133,7 +133,7 @@ export function ProductTile({ product, storeUrl, priceLabel, summary }: Props) {
                     <div className="flex justify-between gap-3 py-2.5">
                       <dt className="label-caps text-on-surface-muted">Category</dt>
                       <dd className="text-right text-sm">
-                        {product.categories[0].name.replace(/&amp;/g, "&")}
+                        {product.categories[0].name}
                       </dd>
                     </div>
                   )}

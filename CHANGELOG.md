@@ -7,6 +7,28 @@ deploys automatically via Vercel, so everything listed here is live.
 
 ## 2026-10-02
 
+### Storefront moved to WooCommerce's Store API — no credentials needed
+The catalogue was rendering empty in production: the admin REST API
+(`/wc/v3`) returned 401 because the consumer key/secret stored in Vercel did
+not match, and a 401 there looks exactly like "no products".
+
+Switched to the **Store API** (`/wc/store/v1`), which WooCommerce provides for
+headless storefronts and which requires no authentication at all. That removes
+the entire class of failure rather than debugging the keys. It also takes
+categories by slug directly (no id lookup), and exposes cart endpoints, so a
+cart on this site can use the same surface later.
+
+`WOO_CONSUMER_KEY` and `WOO_CONSUMER_SECRET` are no longer used and can be
+deleted from Vercel.
+
+Handled along the way: Store API prices are minor units (59900 means $599.00)
+and its text is HTML-encoded, so both are normalised before they reach the UI.
+
+Verified against the live store with no credentials: 56 products, grippers
+2/2, on-sale 5, price 0–100 returns 7, search "gripper" returns 2.
+
+## 2026-10-02
+
 ### Storefront auth: fall back to query-string credentials
 WooCommerce calls from Vercel were returning 401 while the same request with
 the same key succeeded from a laptop. Two causes look identical from the

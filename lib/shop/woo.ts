@@ -1,140 +1,68 @@
-// Read-only WooCommerce client. The store stays on WordPress — it already
-// handles cart, checkout, Stripe, shipping and orders, and rebuilding that is
-// where headless storefronts go wrong. This site renders the browsing half in
-// its own design and hands off to WooCommerce at the point of purchase.
+// Storefront data, read from WooCommerce's **Store API** (/wc/store/v1).
 //
-// Credentials are server-only (no NEXT_PUBLIC_ prefix) so they never reach the
-// browser, and the key is issued Read-only so this code physically cannot
-// change stock, prices or orders.
-// Normalised: a trailing slash here produces "…//wp-json/…", which the host
-// rejects — and the failure is invisible because every call just returns an
-// empty list. Strip it rather than depend on how the value was typed.
+// This is the API WooCommerce built for headless storefronts, and it needs no
+// credentials at all — which removes a whole class of failure. The admin REST
+// API (/wc/v3) needs a consumer key/secret, and when those are wrong it answers
+// 401 and the catalogue silently renders empty, which is exactly what happened
+// in production. The Store API also exposes cart endpoints and a Cart-Token
+// header, so a cart on this site can use the same surface later.
+//
+// Two shape differences worth knowing: prices arrive as minor units (59900
+// means $599.00) and text fields arrive HTML-encoded.
 const API = (process.env.WOO_API_URL || "").replace(/\/+$/, "") || undefined;
-const KEY = process.env.WOO_CONSUMER_KEY;
-const SECRET = process.env.WOO_CONSUMER_SECRET;
 
-export const shopConfigured = Boolean(API && KEY && SECRET);
+export const shopConfigured = Boolean(API);
 
-// Where to send someone to actually buy. Falls back to the API host, since
-// that is the same WordPress install serving cart and checkout.
+// Where "add to cart" and "view in store" point until cart lives on this site.
 export function storeUrl(): string {
   return (process.env.NEXT_PUBLIC_SHOP_URL || API || "").replace(/\/$/, "");
 }
 
+type StorePrices = {
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  currency_minor_unit: number;
+};
+
+type StoreProductRaw = {
+  id: number;
+  name: string;
+  slug: string;
+  sku: string;
+  permalink: string;
+  short_description: string;
+  description: string;
+  on_sale: boolean;
+  is_in_stock: boolean;
+  is_purchasable: boolean;
+  prices: StorePrices;
+  images: { src: string; alt: string }[];
+  categories: { id: number; name: string; slug: string }[];
+};
+
+// Normalised shape the pages render from, so the UI never has to deal with
+// minor units or HTML entities.
 export type WooProduct = {
   id: number;
   name: string;
   slug: string;
   sku: string;
-  price: string;
-  regular_price: string;
-  sale_price: string;
-  on_sale: boolean;
-  stock_status: string;
   permalink: string;
   description: string;
   short_description: string;
+  onSale: boolean;
+  inStock: boolean;
+  price: number | null;
+  regularPrice: number | null;
   images: { src: string; alt: string }[];
   categories: { id: number; name: string; slug: string }[];
-  brands?: { id: number; name: string; slug: string }[];
 };
 
 export type WooCategory = { id: number; name: string; slug: string; count: number };
 
-// WooCommerce accepts either an Authorization header or consumer_key /
-// consumer_secret as query parameters over HTTPS. The header is cleaner, but
-// Apache and LiteSpeed commonly strip Authorization before PHP sees it, which
-// surfaces as a 401 that is indistinguishable from bad credentials. So: try
-// the header, and on a 401 retry with query auth before giving up. If both
-// fail the credentials really are wrong, and the log says so.
-type FetchResult<T> = { data: T; total: number; totalPages: number };
-
-async function wooRequest<T>(
-  path: string,
-  revalidate: number
-): Promise<FetchResult<T> | null> {
-  if (!shopConfigured) return null;
-
-  const sep = path.includes("?") ? "&" : "?";
-  const headers: Record<string, string> = {
-    // Some managed hosts' firewalls reject requests with no/generic UA.
-    "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
-    Accept: "application/json",
-  };
-
-  const attempts: { url: string; headers: Record<string, string>; via: string }[] = [
-    {
-      url: `${API}/wp-json/wc/v3${path}`,
-      headers: {
-        ...headers,
-        Authorization: `Basic ${Buffer.from(`${KEY}:${SECRET}`).toString("base64")}`,
-      },
-      via: "header auth",
-    },
-    {
-      url:
-        `${API}/wp-json/wc/v3${path}${sep}` +
-        `consumer_key=${encodeURIComponent(KEY!)}&consumer_secret=${encodeURIComponent(SECRET!)}`,
-      headers,
-      via: "query auth",
-    },
-  ];
-
-  for (const attempt of attempts) {
-    try {
-      const res = await fetch(attempt.url, {
-        headers: attempt.headers,
-        // Cached briefly: prices and stock move slowly enough that a few
-        // minutes is honest, and it keeps the store off the critical path.
-        next: { revalidate, tags: ["shop"] },
-      });
-
-      if (res.ok) {
-        return {
-          data: (await res.json()) as T,
-          total: Number(res.headers.get("x-wp-total") ?? 0),
-          totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
-        };
-      }
-
-      // Only a 401 is worth retrying the other way; anything else is a real
-      // error and retrying just doubles the load.
-      if (res.status !== 401) {
-        const body = await res.text().catch(() => "");
-        console.error(
-          `[shop] WooCommerce ${res.status} via ${attempt.via} for ${path} :: ${body.slice(0, 200)}`
-        );
-        return null;
-      }
-      console.warn(`[shop] 401 via ${attempt.via} for ${path}`);
-    } catch (err) {
-      console.error(`[shop] WooCommerce unreachable via ${attempt.via} for ${path}`, err);
-      return null;
-    }
-  }
-
-  console.error(
-    `[shop] WooCommerce rejected both header and query auth for ${path} — check WOO_CONSUMER_KEY / WOO_CONSUMER_SECRET`
-  );
-  return null;
-}
-
-async function wooFetch<T>(path: string, revalidate = 300): Promise<T | null> {
-  const res = await wooRequest<T>(path, revalidate);
-  return res ? res.data : null;
-}
-
-async function wooFetchWithHeaders<T>(
-  path: string,
-  revalidate = 300
-): Promise<FetchResult<T> | null> {
-  return wooRequest<T>(path, revalidate);
-}
-
 export type SortKey = "title" | "price-asc" | "price-desc" | "newest";
 
-// WooCommerce's own orderby values; "price-asc"/"price-desc" map onto the same
-// orderby with a different direction.
 const SORTS: Record<SortKey, { orderby: string; order: "asc" | "desc" }> = {
   title: { orderby: "title", order: "asc" },
   "price-asc": { orderby: "price", order: "asc" },
@@ -145,7 +73,7 @@ const SORTS: Record<SortKey, { orderby: string; order: "asc" | "desc" }> = {
 export type ProductQuery = {
   page?: number;
   perPage?: number;
-  categoryId?: number;
+  categorySlug?: string;
   search?: string;
   minPrice?: string;
   maxPrice?: string;
@@ -154,12 +82,77 @@ export type ProductQuery = {
   sort?: SortKey;
 };
 
-// `category` must be the WooCommerce category ID, not its slug — passing a
-// slug returns an empty list with a 200, which looks like "no products" rather
-// than a bug. Callers resolve slug -> id via getCategories().
-//
-// Returns the total count alongside the page so the UI can show "N of M" and
-// build real pagination instead of guessing from a full page.
+// WordPress returns entity-encoded text ("&#8211;", "&amp;"). Decode the few
+// that actually occur rather than adding a dependency for it.
+export function decode(text: string): string {
+  return (text || "")
+    .replace(/&#8211;/g, "–")
+    .replace(/&#8212;/g, "—")
+    .replace(/&#8217;|&#8216;/g, "'")
+    .replace(/&#8220;|&#8221;|&quot;/g, '"')
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .trim();
+}
+
+function toMajorUnits(value: string, minorUnit: number): number | null {
+  const n = Number(value);
+  if (!value || Number.isNaN(n)) return null;
+  return n / 10 ** minorUnit;
+}
+
+function normalise(p: StoreProductRaw): WooProduct {
+  const unit = p.prices?.currency_minor_unit ?? 2;
+  return {
+    id: p.id,
+    name: decode(p.name),
+    slug: p.slug,
+    sku: p.sku,
+    permalink: p.permalink,
+    description: p.description,
+    short_description: p.short_description,
+    onSale: p.on_sale,
+    inStock: p.is_in_stock,
+    price: toMajorUnits(p.prices?.price, unit),
+    regularPrice: toMajorUnits(p.prices?.regular_price, unit),
+    images: p.images ?? [],
+    categories: (p.categories ?? []).map((c) => ({ ...c, name: decode(c.name) })),
+  };
+}
+
+async function storeFetch<T>(
+  path: string,
+  revalidate = 300
+): Promise<{ data: T; total: number; totalPages: number } | null> {
+  if (!shopConfigured) return null;
+  const url = `${API}/wp-json/wc/store/v1${path}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        // Some managed hosts' firewalls reject requests with no/generic UA.
+        "User-Agent": "JetAutomationSite/1.0 (+https://www.jetautomation.ca)",
+      },
+      // Cached briefly: prices and stock move slowly enough that a few minutes
+      // is honest, and it keeps the store off the critical path.
+      next: { revalidate, tags: ["shop"] },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`[shop] Store API ${res.status} for ${path} :: ${body.slice(0, 200)}`);
+      return null;
+    }
+    return {
+      data: (await res.json()) as T,
+      total: Number(res.headers.get("x-wp-total") ?? 0),
+      totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
+    };
+  } catch (err) {
+    console.error(`[shop] Store API unreachable for ${path}`, err);
+    return null;
+  }
+}
+
 export async function getProducts(
   opts: ProductQuery = {}
 ): Promise<{ products: WooProduct[]; total: number; totalPages: number }> {
@@ -167,53 +160,50 @@ export async function getProducts(
   const params = new URLSearchParams({
     per_page: String(opts.perPage ?? 24),
     page: String(opts.page ?? 1),
-    status: "publish",
     orderby: sort.orderby,
     order: sort.order,
   });
-  if (opts.categoryId) params.set("category", String(opts.categoryId));
+  // Unlike the admin API, the Store API takes the category SLUG directly —
+  // no id lookup, and no silent empty result when a slug is passed.
+  if (opts.categorySlug) params.set("category", opts.categorySlug);
   if (opts.search) params.set("search", opts.search);
-  if (opts.minPrice) params.set("min_price", opts.minPrice);
-  if (opts.maxPrice) params.set("max_price", opts.maxPrice);
+  // Price filters are in minor units, so dollars typed by a visitor have to be
+  // scaled or the filter silently matches nothing.
+  if (opts.minPrice) params.set("min_price", String(Math.round(Number(opts.minPrice) * 100)));
+  if (opts.maxPrice) params.set("max_price", String(Math.round(Number(opts.maxPrice) * 100)));
   if (opts.inStockOnly) params.set("stock_status", "instock");
   if (opts.onSaleOnly) params.set("on_sale", "true");
 
-  const res = await wooFetchWithHeaders<WooProduct[]>(`/products?${params}`);
+  const res = await storeFetch<StoreProductRaw[]>(`/products?${params}`);
   return {
-    products: res?.data ?? [],
+    products: (res?.data ?? []).map(normalise),
     total: res?.total ?? 0,
     totalPages: res?.totalPages ?? 0,
   };
 }
 
 export async function getProductBySlug(slug: string): Promise<WooProduct | null> {
-  const list = await wooFetch<WooProduct[]>(`/products?slug=${encodeURIComponent(slug)}&status=publish`);
-  return list && list.length > 0 ? list[0] : null;
+  const res = await storeFetch<StoreProductRaw[]>(`/products?slug=${encodeURIComponent(slug)}`);
+  const first = res?.data?.[0];
+  return first ? normalise(first) : null;
 }
 
 export async function getCategories(): Promise<WooCategory[]> {
-  const cats =
-    (await wooFetch<WooCategory[]>("/products/categories?per_page=100&orderby=name&hide_empty=true", 3600)) ?? [];
-  return cats.filter((c) => c.count > 0);
+  const res = await storeFetch<WooCategory[]>("/products/categories?per_page=100", 3600);
+  return (res?.data ?? [])
+    .filter((c) => c.count > 0)
+    .map((c) => ({ ...c, name: decode(c.name) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// WooCommerce returns HTML. Strip it for card summaries rather than dumping
-// markup from a system we don't control into this site's DOM.
+// WooCommerce descriptions are HTML. Strip it for summaries rather than
+// injecting markup from a system we don't control into this site's DOM.
 export function toPlainText(html: string, limit = 180): string {
-  const text = (html || "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
-    .replace(/&#8211;/gi, "-")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#8217;/gi, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+  const text = decode((html || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   return text.length > limit ? `${text.slice(0, limit).trimEnd()}…` : text;
 }
 
-export function formatPrice(value: string): string {
-  const n = Number(value);
-  if (!value || Number.isNaN(n)) return "Price on request";
-  return n.toLocaleString("en-CA", { style: "currency", currency: "CAD" });
+export function formatPrice(value: number | null): string {
+  if (value === null) return "Price on request";
+  return value.toLocaleString("en-CA", { style: "currency", currency: "CAD" });
 }

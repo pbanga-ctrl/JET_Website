@@ -73,14 +73,11 @@ export default async function ShopPage(props: { searchParams: Promise<Search> })
   }
 
   const categories = await getCategories();
-  const categoryId = sp.category
-    ? categories.find((c) => c.slug === sp.category)?.id
-    : undefined;
 
   const { products, total, totalPages } = await getProducts({
     page: pageNum,
     perPage: PER_PAGE,
-    categoryId,
+    categorySlug: sp.category,
     search: sp.q,
     minPrice: sp.min,
     maxPrice: sp.max,
@@ -217,7 +214,7 @@ export default async function ShopPage(props: { searchParams: Promise<Search> })
                           sp.category === c.slug ? "font-bold text-primary" : "text-on-surface-muted"
                         }`}
                       >
-                        {c.name.replace(/&amp;/g, "&")}{" "}
+                        {c.name}{" "}
                         <span className="spec-mono text-xs">({c.count})</span>
                       </Link>
                     </li>

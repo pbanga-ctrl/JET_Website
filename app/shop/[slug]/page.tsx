@@ -36,7 +36,7 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
   if (!product) notFound();
 
   const img = product.images?.[0];
-  const inStock = product.stock_status === "instock";
+  const inStock = product.inStock;
   // Deep link straight into WooCommerce's cart so the item is already there.
   const buyHref = `${storeUrl()}/cart/?add-to-cart=${product.id}`;
 
@@ -89,7 +89,7 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
             <div className="lg:col-span-6">
               <Eyebrow>
                 {product.categories?.[0]?.name
-                  ? product.categories[0].name.replace(/&amp;/g, "&")
+                  ? product.categories[0].name
                   : "Parts"}
               </Eyebrow>
               <h1 className="mt-4 text-[clamp(1.75rem,6.5vw,2.75rem)] font-bold leading-[1.12] tracking-[-0.015em] sm:leading-[1.1] sm:tracking-[-0.02em]">
@@ -105,9 +105,9 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                   <dt className="label-caps text-on-surface-muted">Price</dt>
                   <dd className="spec-mono text-[18px] font-medium">
                     {formatPrice(product.price)}
-                    {product.on_sale && product.regular_price && (
+                    {product.onSale && product.regularPrice && (
                       <span className="ml-2 text-on-surface-muted line-through">
-                        {formatPrice(product.regular_price)}
+                        {formatPrice(product.regularPrice)}
                       </span>
                     )}
                   </dd>
@@ -164,7 +164,7 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                       href={`/shop?category=${c.slug}`}
                       className="label-caps border border-border px-3 py-1.5 text-on-surface-muted transition-colors hover:border-primary hover:text-primary"
                     >
-                      {c.name.replace(/&amp;/g, "&")}
+                      {c.name}
                     </Link>
                   ))}
                 </div>
