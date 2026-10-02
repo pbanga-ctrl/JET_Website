@@ -32,6 +32,12 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
         pathname: "/images/pmugwcpi/**",
       },
+      // Product photography is served by WordPress on the store subdomain.
+      {
+        protocol: "https",
+        hostname: "shop.jetautomation.ca",
+        pathname: "/wp-content/uploads/**",
+      },
     ],
   },
 };

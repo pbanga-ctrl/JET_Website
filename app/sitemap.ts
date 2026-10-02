@@ -12,6 +12,7 @@ const STATIC_ROUTE_META: Record<string, { changeFrequency: MetadataRoute.Sitemap
   "/": { changeFrequency: "monthly", priority: 1 },
   "/services": { changeFrequency: "monthly", priority: 0.9 },
   "/products": { changeFrequency: "monthly", priority: 0.9 },
+  "/shop": { changeFrequency: "weekly", priority: 0.8 },
   "/careers": { changeFrequency: "weekly", priority: 0.7 },
   "/contact-us": { changeFrequency: "yearly", priority: 0.6 },
   "/support": { changeFrequency: "yearly", priority: 0.5 },

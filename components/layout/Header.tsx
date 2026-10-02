@@ -8,13 +8,9 @@ import { ButtonLink } from "@/components/ui/Button";
 
 const SCROLL_REVEAL_THRESHOLD = 24;
 
-// The old WooCommerce store went away with the WordPress site, and its
-// replacement isn't live yet — so there is deliberately no default here.
-// While this is unset the Shop link is hidden entirely (see NAV_ITEMS)
-// rather than pointing somewhere that 404s. Set NEXT_PUBLIC_SHOP_URL to the
-// new storefront's address to bring the link back; it is a build-time value,
-// so it takes a redeploy.
-const SHOP_URL = process.env.NEXT_PUBLIC_SHOP_URL;
+// The storefront now lives on this site at /shop, reading the WooCommerce
+// catalogue (lib/shop/woo.ts). Checkout still hands off to WooCommerce, but
+// browsing is ours, so this is an internal link rather than an external one.
 
 function subscribeToScroll(callback: () => void) {
   window.addEventListener("scroll", callback, { passive: true });
@@ -47,7 +43,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: "Products", href: "/products" },
-  ...(SHOP_URL ? [{ label: "Shop", href: SHOP_URL, external: true }] : []),
+  { label: "Shop", href: "/shop" },
   { label: "Careers", href: "/careers" },
   { label: "Support", href: "/support" },
 ];
