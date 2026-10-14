@@ -1,26 +1,29 @@
 import Image from "next/image";
 import { SCHNEIDER_ALLIANCE_BADGE } from "@/lib/data/certifications";
 
-// Quiet credential under the hero headline. Hidden entirely when the flag
-// in lib/data/certifications.ts is off, so the lockup can be reviewed on a
-// preview deploy and pulled without editing the page.
+// Official Schneider wordmark plus the Alliance line, under the hero
+// headline. The SVG is not restyled: fixed height, auto width, and a gap
+// so the type sits outside the logo's clear space. Hidden when the flag
+// in lib/data/certifications.ts is off.
 export function SchneiderAllianceBadge() {
   if (!SCHNEIDER_ALLIANCE_BADGE.enabled) return null;
 
   const { image, alt, width, height } = SCHNEIDER_ALLIANCE_BADGE;
 
   return (
-    <div className="mt-6">
+    <div className="mt-6 inline-flex max-w-full items-center gap-4">
       <Image
         src={image}
         alt={alt}
         width={width}
         height={height}
-        // Local SVG is served as-is (Next skips the optimizer for .svg).
-        // priority: it sits in the first screen, under the headline.
         priority
-        className="h-auto w-full max-w-[300px]"
+        className="h-9 w-auto shrink-0"
       />
+      <p className="label-caps text-on-surface leading-tight">
+        <span className="block whitespace-nowrap">Certified</span>
+        <span className="block whitespace-nowrap">System Integrator</span>
+      </p>
     </div>
   );
 }
