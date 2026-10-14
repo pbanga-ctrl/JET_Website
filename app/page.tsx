@@ -14,7 +14,7 @@ import { MetricCounter, StaticMetric } from "@/components/ui/MetricCounter";
 import { HeroRobotArm } from "@/components/home/HeroRobotArm";
 import { HeroScrollCue } from "@/components/home/HeroScrollCue";
 import { HeroWordmark } from "@/components/home/HeroWordmark";
-import { SchneiderAllianceBadge } from "@/components/home/SchneiderAllianceBadge";
+import { CertificationBadges } from "@/components/home/CertificationBadges";
 import { ParallaxImage } from "@/components/home/ParallaxImage";
 import { ProductTabCarousel } from "@/components/products/ProductTabCarousel";
 import { PageTransition } from "@/components/ui/PageTransition";
@@ -172,7 +172,7 @@ export default function HomePage() {
           {/* Under the headline, not the buttons: on a phone the cookie bar
               covers the bottom of this fold, and a credential there is hidden
               until consent. */}
-          <SchneiderAllianceBadge />
+          <CertificationBadges />
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
             Jet Automation designs, builds and commissions automation for
             manufacturers: robotic cells, control systems, electrical
