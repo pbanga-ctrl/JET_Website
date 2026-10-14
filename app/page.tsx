@@ -12,6 +12,8 @@ import { NumberedCard } from "@/components/ui/NumberedCard";
 import { ConversionBand } from "@/components/ui/ConversionBand";
 import { MetricCounter, StaticMetric } from "@/components/ui/MetricCounter";
 import { HeroRobotArm } from "@/components/home/HeroRobotArm";
+import { HeroScrollCue } from "@/components/home/HeroScrollCue";
+import { HeroWordmark } from "@/components/home/HeroWordmark";
 import { SchneiderAllianceBadge } from "@/components/home/SchneiderAllianceBadge";
 import { ParallaxImage } from "@/components/home/ParallaxImage";
 import { ProductTabCarousel } from "@/components/products/ProductTabCarousel";
@@ -100,7 +102,7 @@ export default function HomePage() {
     <PageTransition>
     <>
       {/* Hero — fills the viewport on load; the header stays hidden until scroll */}
-      <section className="relative flex min-h-screen items-center overflow-hidden">
+      <section id="hero" className="relative flex min-h-screen items-center overflow-hidden">
       <div className="absolute inset-0 -z-10">
         {/* Original static plant-photo background — kept here (disabled) as
             an easy fallback if the video background gets swapped out.
@@ -153,8 +155,12 @@ export default function HomePage() {
           }}
         />
       </div>
+      <HeroWordmark />
       <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
-        <div className="max-w-2xl">
+        {/* pr-14 on the narrowest phones keeps the paragraph clear of the
+            scroll cue, which has to sit up in that column while the cookie
+            bar covers the bottom of the screen. */}
+        <div className="max-w-2xl max-[359px]:pr-14">
           <Eyebrow>INTELLIGENT AI AUTOMATION · controls · robotics</Eyebrow>
           <h1 className="mt-6 text-[clamp(2.15rem,9vw,3.5rem)] font-bold leading-[1.05] tracking-[-0.02em] sm:leading-[1.02] sm:tracking-[-0.03em] lg:text-[72px]">
             FAST.
@@ -183,10 +189,11 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      <HeroScrollCue />
       </section>
 
       {/* Stats band */}
-      <section className="relative overflow-hidden border-y border-border-dark bg-secondary py-28 text-on-dark">
+      <section id="home-stats" className="relative scroll-mt-24 overflow-hidden border-y border-border-dark bg-secondary py-28 text-on-dark">
         <div className="mx-auto max-w-[1200px] px-5 sm:px-8">
           <Eyebrow dark>By the numbers</Eyebrow>
           <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-14 lg:grid-cols-4">

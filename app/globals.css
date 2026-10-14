@@ -180,6 +180,29 @@ body {
   }
 }
 
+/* Hero scroll cue — a short drop and fade, not a loop that keeps moving
+   when the visitor has asked for less motion. */
+@keyframes hero-scroll-cue {
+  0%,
+  100% {
+    translate: 0 0;
+    opacity: 0.72;
+  }
+  50% {
+    translate: 0 6px;
+    opacity: 1;
+  }
+}
+.hero-scroll-cue {
+  animation: hero-scroll-cue 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* ==========================================================================
    View Transitions — directional nav slides + header anchoring
 
