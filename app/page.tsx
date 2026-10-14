@@ -12,6 +12,7 @@ import { NumberedCard } from "@/components/ui/NumberedCard";
 import { ConversionBand } from "@/components/ui/ConversionBand";
 import { MetricCounter, StaticMetric } from "@/components/ui/MetricCounter";
 import { HeroRobotArm } from "@/components/home/HeroRobotArm";
+import { SchneiderAllianceBadge } from "@/components/home/SchneiderAllianceBadge";
 import { ParallaxImage } from "@/components/home/ParallaxImage";
 import { ProductTabCarousel } from "@/components/products/ProductTabCarousel";
 import { PageTransition } from "@/components/ui/PageTransition";
@@ -162,6 +163,10 @@ export default function HomePage() {
             <br />
             RELIABLE.
           </h1>
+          {/* Under the headline, not the buttons: on a phone the cookie bar
+              covers the bottom of this fold, and a credential there is hidden
+              until consent. */}
+          <SchneiderAllianceBadge />
           <p className="mt-6 max-w-[42rem] text-lg text-on-surface-muted">
             Jet Automation designs, builds and commissions automation for
             manufacturers: robotic cells, control systems, electrical

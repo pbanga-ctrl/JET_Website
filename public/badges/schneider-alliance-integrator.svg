@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="56" viewBox="0 0 300 56" role="img" aria-labelledby="badge-title badge-desc">
+  <title id="badge-title">Schneider Electric Alliance System Integrator</title>
+  <desc id="badge-desc">Draft certification mark for JET Automation. Replace this file with the official Alliance Partner logo from Schneider Electric's partner portal when it is provided. This drawing is original and is not Schneider's trademark.</desc>
+  <!--
+    Draft placeholder only. Not Schneider Electric's Alliance Partner logo.
+    Swap this file for the official asset from the partner portal.
+  -->
+  <rect width="300" height="56" fill="#F9FAFB"/>
+  <rect x="0.5" y="0.5" width="299" height="55" fill="none" stroke="#D2D8DE"/>
+  <rect x="12" y="12" width="32" height="32" fill="#3DCD58"/>
+  <path d="M19.5 28.2 L26 35 L36.5 21" fill="none" stroke="#141414" stroke-width="2.25" stroke-linecap="square" stroke-linejoin="miter"/>
+  <text x="56" y="24" fill="#141414" font-family="&quot;IBM Plex Mono&quot;, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace" font-size="11" font-weight="500" letter-spacing="0.9">SCHNEIDER ELECTRIC ALLIANCE</text>
+  <text x="56" y="40" fill="#4F5A66" font-family="&quot;IBM Plex Mono&quot;, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace" font-size="10" font-weight="400" letter-spacing="1.15">SYSTEM INTEGRATOR</text>
+</svg>
